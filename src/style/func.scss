@@ -1,0 +1,7 @@
+@function getvh($num) {
+  @return ($num / 1667 * 100vh);
+}
+
+@function getvw($num) {
+  @return ($num / 750 * 100vw);
+}

@@ -1,0 +1,15 @@
+.van-password-input__security li {
+  border-bottom: 1px solid #2d2d2d;
+}
+
+.van-dialog--round-button .van-dialog__message {
+  color: #2d2d2d !important;
+  font-size: 5vw;
+}
+
+.van-action-sheet__description {
+  padding: 0 !important;
+  &::after {
+    display: none;
+  }
+}

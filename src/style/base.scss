@@ -1,0 +1,50 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html:root {
+  --theme-color: #151515;
+  --sub-theme-color: #2c2c2c;
+  --theme-text-color: #fff;
+  --van-nav-bar-arrow-size: 18px;
+  --van-nav-bar-icon-color: var(--theme-text-color);
+  --van-nav-bar-text-color: var(--theme-text-color);
+  --van-nav-bar-title-text-color: var(--theme-text-color);
+  --van-nav-bar-title-font-size: 4.6667vw;
+  --van-nav-bar-height: 50px;
+  --van-nav-bar-background-color: var(--sub-theme-color);
+  --van-nav-bar-z-index: 99;
+  --van-cell-group-background-color: var(--theme-color);
+  --van-cell-group-inset-padding: 0;
+  --van-cell-background-color: var(--theme-color);
+  --van-cell-text-color: var(--theme-text-color);
+  --van-text-color: var(--theme-text-color);
+  --van-tag-plain-background-color: transparent;
+  --van-password-input-background-color: var(--theme-color);
+  --van-number-keyboard-background-color: var(--theme-color);
+  --van-number-keyboard-key-background-color: var(--sub-theme-color);
+  --van-number-keyboard-key-active-color: var(--theme-color);
+  --van-button-large-height: 5.8vh;
+  --van-tabbar-background-color: #1d1c21;
+  --van-tabbar-item-active-background-color: #1d1c21;
+  --van-tabbar-height: 8vh;
+  --van-divider-border-color: var(--sub-theme-color);
+  --van-divider-text-color: var(--sub-theme-color);
+}
+
+html,body {
+  // overflow: hidden;
+  background-color: var(--theme-color);
+  color: var(--theme-text-color);
+}
+
+
+.router-link-active {
+  color: #4e657e;
+}
+
+a {
+  color: var(--theme-text-color);
+}
