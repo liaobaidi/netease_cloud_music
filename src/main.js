@@ -17,4 +17,12 @@ app.use(Vant)
 app.component('svg-icon', SvgIcon)
 app.component('swiper-action', SwiperAction)
 
+app.directive('focus', {
+  // 当被绑定的元素挂载到 DOM 中时……
+  mounted(el) {
+    // 聚焦元素
+    el.focus()
+  }
+})
+
 app.mount('#app')

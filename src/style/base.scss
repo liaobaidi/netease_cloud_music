@@ -32,12 +32,16 @@ html:root {
   --van-tabbar-height: 8vh;
   --van-divider-border-color: var(--sub-theme-color);
   --van-divider-text-color: var(--sub-theme-color);
+  --van-dialog-background-color: var(--sub-theme-color);
+  --van-circle-text-color: #000;
+  --van-circle-text-font-size: 3.2vw
 }
 
 html,body {
   // overflow: hidden;
   background-color: var(--theme-color);
   color: var(--theme-text-color);
+  scroll-behavior: smooth;
 }
 
 

@@ -90,11 +90,11 @@ export default {
     border-bottom: 1px solid #212121;
     .author,
     .dec {
-      font-size: 3.8vw;
+      font-size: 4vw;
       color: #fff;
       width: 80%;
       span {
-        font-size: 1.6vw;
+        font-size: 3.2vw;
         color: #b8b8b8;
       }
     }

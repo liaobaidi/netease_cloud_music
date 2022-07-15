@@ -1,7 +1,7 @@
 <template>
-  <div @click="toLink" class="music-container flex flex-col flex-bet flex-acenter">
+  <div @click="toLink" class="music-container flex flex-col flex-ard flex-acenter">
     <div class="pic relative">
-      <div class="count absolute">
+      <div class="count absolute flex flex-acenter">
         <van-icon class-prefix="net" name="play" size="10" />
         {{ countUnit(count) }}
       </div>
@@ -83,12 +83,12 @@ export default {
       top: 1.3333vw;
       right: 1.3333vw;
       z-index: 1;
-      font-size: 1.6vw;
+      font-size: 2.4vw;
       padding: 0 2vw;
     }
   }
   .title {
-    font-size: 2.6667vw;
+    font-size: 3.6667vw;
     color: var(--theme-text-color);
   }
 }

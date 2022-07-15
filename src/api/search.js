@@ -28,3 +28,11 @@ export const getTopicList = (params) => {
     params
   })
 }
+
+export const search = (params) => {
+  return request({
+    url: '/cloudsearch',
+    method: 'GET',
+    params
+  })
+}

@@ -4,8 +4,9 @@
       <Header>
         <template #search>
           <div class="search flex flex-center flex-acenter" @click="toLink('search')">
-            <span class="net net-sousuo" />
-            &nbsp;{{ searchKey }}
+            <span class="net net-sousuo marginLeft20" />
+            &nbsp;
+            <span class="van-ellipsis">{{ searchKey }}</span>
           </div>
         </template>
         <template #right>
@@ -14,7 +15,7 @@
       </Header>
     </header>
     <van-swipe class="my-swipe" :autoplay="5000">
-      <van-swipe-item v-for="item in banners" :key="item.bannerId" @click="toBannerInfo(item)" class="my-swipe-item">
+      <van-swipe-item v-for="item in banners" :key="item.bannerId" class="my-swipe-item">
         <van-image radius="16" class="image" fit="fill" :src="item.pic" />
       </van-swipe-item>
       <template #indicator="{ active, total }">
@@ -24,11 +25,11 @@
       </template>
     </van-swipe>
     <ul class="ball flex marginTop20">
-      <li v-for="item in ballList" :key="item.id" @click="toBannerInfo(item)" class="flex flex-col flex-center flex-acenter ball-item">
+      <li v-for="item in ballList" :key="item.id" class="flex flex-col flex-center flex-acenter ball-item" @click="toLink(item.name)">
         <div class="icon flex flex-center flex-acenter">
           <van-icon :name="item.iconUrl" color="#d03333" size="40" />
         </div>
-        <div style="font-size: 2vw; width: 12.8vw" class="text-center">
+        <div style="font-size: 3.2vw; width: 12.8vw" class="text-center">
           {{ item.name }}
         </div>
       </li>
@@ -41,7 +42,7 @@
           </template>
           <template #right>
             <div class="flex flex-center flex-acenter right-text">
-              <span>更多</span>
+              <span @click="router.push({ name: 'square' })">更多</span>
               <van-icon name="arrow" />
             </div>
           </template>
@@ -61,7 +62,7 @@
           </template>
           <template #right>
             <div class="flex flex-center flex-acenter right-text">
-              <span>更多</span>
+              <span @click="router.push({ name: 'square' })">更多</span>
               <van-icon name="arrow" />
             </div>
           </template>
@@ -103,7 +104,7 @@
           </template>
           <template #right>
             <div class="flex flex-center flex-acenter right-text">
-              <span>更多</span>
+              <span @click="router.push({ name: 'toplist' })">更多</span>
               <van-icon name="arrow" />
             </div>
           </template>
@@ -198,13 +199,6 @@ export default {
     let recommendFM = reactive([]) // 推荐电台
     let router = useRouter()
 
-    const toBannerInfo = (item) => {
-      if (item.url) {
-        window.location.href = item.url
-      } else {
-        Notify({ type: 'danger', message: '暂时没有数据' })
-      }
-    }
     getBanners().then((res) => {
       if (res.code === 200) {
         // console.log(res, 'banners')
@@ -320,7 +314,6 @@ export default {
           topListCurrentIndex.value--
           if (topListCurrentIndex.value < 0) {
             topListCurrentIndex.value = 0
-            // Toast({ message: '到头了' })
             return
           } else {
             topListAction.style.left = 90 + parseInt(topListAction.style.left) + 'vw'
@@ -349,7 +342,22 @@ export default {
     })
 
     const toLink = (key) => {
-      router.push({ path: `/${key}`, name: key, query: { keyWord: searchKey.value } })
+      switch (key) {
+        case 'search':
+          router.push({ name: key, query: { keyWord: searchKey.value } })
+          break
+        case '每日推荐':
+          router.push({ name: 'recommend' })
+          break
+        case '歌单':
+          router.push({ name: 'square' })
+          break
+        case '排行榜':
+          router.push({ name: 'toplist' })
+          break
+        default:
+          Toast(`暂时没有${key}的数据`)
+      }
     }
 
     return {
@@ -364,7 +372,6 @@ export default {
       albumTotal,
       topList,
       recommendFM,
-      toBannerInfo,
       changeSpecialList,
       changeDirection,
       toLink,

@@ -1,9 +1,9 @@
 <template>
-  <div style="overflow: hidden">
+  <div v-show="!showInfo" style="overflow: hidden">
     <header class="flex flex-bet flex-acenter header fixed transition" :style="scrolly >= 150 ? 'background: -webkit-linear-gradient(135deg, ' + arr[0].rgba + ', ' + arr[arr.length - 1].rgba + ')' : ''">
       <div class="flex">
         <van-icon class="marginRight20" class-prefix="net" name="xiangzuo-jiantou" size="24" @click="router.go(-1)" />
-        <span>歌单</span>
+        <span>{{ al ? '专辑' : '歌单' }}</span>
       </div>
       <div class="flex">
         <van-icon class="marginRight20" class-prefix="net" name="sousuo" />
@@ -13,9 +13,9 @@
     <div class="top-part flex relative">
       <div class="absolute top-part-bg" :style="arr.length && 'background: -webkit-linear-gradient(135deg, ' + arr[0].rgba + ', ' + arr[arr.length - 1].rgba + ')'" />
       <div class="flex" style="height: calc(260 / 1667 * 100vh)">
-        <div class="logo marginRight20 relative">
-          <van-image id="logo" :src="playList.coverImgUrl || './static/img/loadingErroe.png'" width=" calc(260 / 1667 * 100vh)" height=" calc(260 / 1667 * 100vh)" radius="3vw" fit="fill" />
-          <div class="count absolute">
+        <div class="logo marginRight20 relative" @click="showInfo = true">
+          <van-image id="logo" :src="playList.coverImgUrl || playList.picUrl || './static/img/logo.png'" width=" calc(260 / 1667 * 100vh)" height=" calc(260 / 1667 * 100vh)" radius="3vw" fit="fill" />
+          <div class="count absolute" v-if="!al">
             <van-icon class-prefix="net" name="play" size="10" />
             {{ countUnit(playList.playCount) }}
           </div>
@@ -24,13 +24,14 @@
           <div class="songsheet-name van-multi-ellipsis--l2">{{ playList.name || '' }}</div>
           <div>
             <div class="author flex flex-acenter" style="width: 10em">
-              <div class="author-logo flex flex-acenter">
+              <div class="author-logo flex flex-acenter" v-if="!al">
                 <van-image :src="playList.creator.avatarUrl || './static/img/loadingErroe.png'" width="6vw" height="6vw" class="marginRight10" round fit="fill" />
               </div>
-              <div class="author-name van-ellipsis">{{ playList.creator.nickname }}</div>
-              <van-icon name="arrow" />
+              <div class="author-name van-ellipsis marginRight10" @click="router.push({ name: 'userinfo', params: { id: userId } })">{{ playList.creator.nickname || (songList[0] && getAuthors(songList[0].ar)) }}</div>
+              <van-icon name="arrow" v-if="followed || userId === +store.getters.userid || al" />
+              <van-icon v-else class-prefix="net" name="plus" class="follow" color="#bbb5b5" @click="toFollow" />
             </div>
-            <div class="dec flex flex-acenter" style="width: 10em">
+            <div class="dec flex flex-acenter" style="width: 10em" @click="showInfo = true">
               <span class="van-ellipsis">{{ playList.description || '介绍： 无' }}</span>
               <van-icon name="arrow" />
             </div>
@@ -39,12 +40,12 @@
       </div>
     </div>
   </div>
-  <div class="sanlian flex flex-center">
+  <div v-show="!showInfo" class="sanlian flex flex-center">
     <div class="sanlian-inner flex flex-acenter flex-ard">
       <div class="flex flex-acenter">
-        <van-icon v-if="subscribed" name="passed" color="gray" class="marginRight10" />
+        <van-icon v-if="subscribed || userId === +store.getters.userid" name="passed" color="gray" class="marginRight10" />
         <van-icon v-else class="marginRight10" class-prefix="net" name="tianjiashoucang" />
-        <span @click="like" :style="subscribed ? 'color: gray' : ''">{{ countUnit(bookedCount) || '收藏' }}</span>
+        <span @click="like" :style="subscribed || userId === +store.getters.userid ? 'color: gray' : ''">{{ countUnit(bookedCount) || '收藏' }}</span>
       </div>
       <div style="color: gray">|</div>
       <div class="flex flex-acenter">
@@ -58,20 +59,25 @@
       </div>
     </div>
   </div>
-  <div class="marginTop20" style="overflow: hidden">
+  <div v-show="!showInfo" class="marginTop20" style="overflow: hidden">
     <div class="music-item" v-for="(item, index) in songList" :key="item.id">
       <MusicItem :show-pic="false" :is-top="parseInt(istop)" :id="item.id" :pic-url="item.al.picUrl" :index="index + 1" :album-name="item.name" :author-name="item.ar[0].name" :description="item.al.name" />
     </div>
   </div>
+  <Info @close="showInfo = false" :tabs="playList.tags" :show="showInfo" :url="playList.coverImgUrl || playList.picUrl" :descript="playList.description" :nickname="playList.name" :color-arr="arr" />
 </template>
 
 <script>
-import { ref, onMounted, reactive, toRefs, nextTick } from 'vue'
+import { ref, onMounted, reactive, toRefs, nextTick, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
-import { getPlayListAll, getPlayListDetail, getPlayListDynamic, triggleLike } from '@/api/songList.js'
+import { useStore } from 'vuex'
+import { followUser } from '@/api/user.js'
+import { getPlayListAll, getPlayListDetail, getPlayListDynamic, triggleLike, getAlbums, getAlbumDetail, subAlbum } from '@/api/songList.js'
 import countUnit from '@/utils/countUnit.js'
 import MusicItem from '@/components/musicItem.vue'
+import { getAuthors } from '@/utils'
 import { Toast } from 'vant'
+const Info = defineAsyncComponent(() => import('./component/Info.vue'))
 export default {
   name: 'SongSheet',
   props: {
@@ -82,14 +88,20 @@ export default {
     istop: {
       type: [Number, String],
       default: 0
+    },
+    al: {
+      type: [String, Number],
+      default: ''
     }
   },
   components: {
-    MusicItem
+    MusicItem,
+    Info
   },
   setup(props, context) {
     const router = useRouter()
-    const { id, istop } = toRefs(props)
+    const store = useStore()
+    const { id, istop, al } = toRefs(props)
     let songList = reactive([]) // 歌单
     let playList = reactive({
       creator: reactive({})
@@ -99,50 +111,115 @@ export default {
     let scrolly = ref(0)
     let subscribed = ref(false) // 是否已经关注
     let bookedCount = ref(0) // 收藏数量
+    let followed = ref(false) // 是否关注歌手
+    let userId = ref(-1)
+    let showInfo = ref(false)
+
     window.onscroll = () => {
-      scrolly.value = window.scrollY
+      scrolly.value = document.documentElement.scrollTop
     }
-    getPlayListAll({ id: id.value }).then((res) => {
-      // console.log(res, 'getPlayListAll')
-      if (res.code === 200) {
-        songList.push(...res.songs)
-      }
-    })
-    getPlayListDetail({ id: id.value }).then((res) => {
-      // console.log(res, 'getPlayListDetail')
-      if (res.code === 200) {
-        Object.assign(playList, res.playlist)
-      }
-    })
-    getPlayListDynamic({ id: id.value }).then((res) => {
-      // console.log(res, 'getPlayListDynamic')
-      if (res.code === 200) {
-        Object.assign(slInfo, res)
-        subscribed.value = slInfo.subscribed
-        bookedCount.value = slInfo.bookedCount
-      }
-    })
+    if (+al.value) {
+      getAlbums({ id: id.value }).then((res) => {
+        // console.log(res, 'getalbums')
+        if (res.code === 200) {
+          songList.push(...res.songs)
+          Object.assign(playList, res.songs[0].al)
+        }
+      })
+      getAlbumDetail({ id: id.value }).then((res) => {
+        // console.log(res, 'getAlbumDetail')
+        if (res.code === 200) {
+          Object.assign(slInfo, res)
+          subscribed.value = slInfo.isSub
+          bookedCount.value = slInfo.subCount
+        }
+      })
+    } else {
+      getPlayListAll({ id: id.value }).then((res) => {
+        // console.log(res, 'getPlayListAll')
+        if (res.code === 200) {
+          songList.push(...res.songs)
+        }
+      })
+      getPlayListDetail({ id: id.value }).then((res) => {
+        // console.log(res, 'getPlayListDetail')
+        if (res.code === 200) {
+          Object.assign(playList, res.playlist)
+          userId.value = playList.userId
+        }
+      })
+      getPlayListDynamic({ id: id.value }).then((res) => {
+        // console.log(res, 'getPlayListDynamic')
+        if (res.code === 200) {
+          Object.assign(slInfo, res)
+          subscribed.value = slInfo.subscribed
+          bookedCount.value = slInfo.bookedCount
+          followed.value = slInfo.followed
+        }
+      })
+    }
     const like = () => {
-      if (subscribed.value) {
-        // 取关
-        triggleLike({ t: 2, id: id.value }).then((res) => {
-          // console.log(res, 'triggleLike')
-          if (res.code === 200) {
-            subscribed.value = false
-            bookedCount.value--
-            Toast.success('已取消收藏')
-          }
-        })
+      if (+al.value) {
+        if (userId.value === +store.getters.userid) {
+          return
+        }
+        if (subscribed.value) {
+          // 取关
+          subAlbum({ t: 2, id: id.value }).then((res) => {
+            // console.log(res, 'triggleLike')
+            if (res.code === 200) {
+              subscribed.value = false
+              bookedCount.value--
+              Toast.success('已取消收藏')
+            }
+          })
+        } else {
+          subAlbum({ t: 1, id: id.value }).then((res) => {
+            // console.log(res, 'triggleLike')
+            if (res.code === 200) {
+              subscribed.value = true
+              bookedCount.value++
+              Toast.success('已添加收藏')
+            }
+          })
+        }
       } else {
-        triggleLike({ t: 1, id: id.value }).then((res) => {
-          // console.log(res, 'triggleLike')
-          if (res.code === 200) {
-            subscribed.value = true
-            bookedCount.value++
-            Toast.success('已添加收藏')
-          }
-        })
+        if (userId.value === +store.getters.userid) {
+          return
+        }
+        if (subscribed.value) {
+          // 取关
+          triggleLike({ t: 2, id: id.value }).then((res) => {
+            // console.log(res, 'triggleLike')
+            if (res.code === 200) {
+              subscribed.value = false
+              bookedCount.value--
+              Toast.success('已取消收藏')
+            }
+          })
+        } else {
+          triggleLike({ t: 1, id: id.value }).then((res) => {
+            // console.log(res, 'triggleLike')
+            if (res.code === 200) {
+              subscribed.value = true
+              bookedCount.value++
+              Toast.success('已添加收藏')
+            }
+          })
+        }
       }
+    }
+
+    const toFollow = () => {
+      followUser({ id: userId.value, t: 1 }).then((res) => {
+        // console.log(res, 'toFollow')
+        if (res.code === 200) {
+          Toast.success(res.followContent || '关注成功！')
+          followed.value = true
+        } else {
+          Toast.fail({ message: res.data.blockText, duration: 2500 })
+        }
+      })
     }
 
     onMounted(() => {
@@ -173,6 +250,7 @@ export default {
             const key = [r, g, b, a].join(',')
             key in colorList ? ++colorList[key] : (colorList[key] = 1)
           }
+
           for (let key in colorList) {
             arr.push({
               rgba: `rgba(${key})`,
@@ -185,6 +263,7 @@ export default {
     })
     return {
       id,
+      userId,
       songList,
       playList,
       arr,
@@ -193,9 +272,14 @@ export default {
       slInfo,
       subscribed,
       bookedCount,
+      followed,
       like,
       router,
-      istop
+      istop,
+      toFollow,
+      showInfo,
+      store,
+      getAuthors
     }
   }
 }
@@ -273,5 +357,13 @@ export default {
 .music-item {
   width: 100%;
   height: getvh(120);
+}
+.follow {
+  width: 6vw;
+  height: 4vw;
+  border-radius: 2vw;
+  text-align: center;
+  line-height: 4vw;
+  background-color: rgba(255, 255, 255, 0.3);
 }
 </style>

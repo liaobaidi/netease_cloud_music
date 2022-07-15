@@ -8,7 +8,7 @@ export const getRecommendList = (params) => {
   })
 }
 
-export const getSpecialListTags  = () => {
+export const getSpecialListTags = () => {
   return request({
     url: '/playlist/highquality/tags',
     method: 'GET'
@@ -67,5 +67,59 @@ export const triggleLike = (params) => {
     url: '/playlist/subscribe',
     method: 'POST',
     data: qs.stringify(params)
+  })
+}
+
+export const deletePlaylist = (params) => {
+  return request({
+    url: '/playlist/delete',
+    method: 'GET',
+    params
+  })
+}
+
+export const getAlbums = (params) => {
+  return request({
+    url: '/album',
+    method: 'GET',
+    params
+  })
+}
+
+export const getAlbumDetail = (params) => {
+  return request({
+    url: '/album/detail/dynamic',
+    method: 'GET',
+    params
+  })
+}
+
+export const subAlbum = (params) => {
+  return request({
+    url: '/album/sub',
+    method: 'GET',
+    params
+  })
+}
+
+export const getRecommedSong = () => {
+  return request({
+    url: '/recommend/songs',
+    method: 'GET'
+  })
+}
+
+export const getSongSquare = (params) => {
+  return request({
+    url: '/top/playlist',
+    method: 'GET',
+    params
+  })
+}
+
+export const getPlayListCats = () => {
+  return request({
+    url: '/playlist/catlist',
+    method: 'GET'
   })
 }

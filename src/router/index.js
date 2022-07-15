@@ -14,26 +14,23 @@ const routes = [
         component: () => import('@/views/Find/index.vue')
       },
       {
-        path: 'play',
-        name: 'play',
-        component: () => import('@/views/Play/index.vue')
-      },
-      {
         path: 'mine',
         name: 'mine',
-        component: () => import('@/views/Mine/index.vue')
-      },
-      {
-        path: 'like',
-        name: 'like',
-        component: () => import('@/views/Like/index.vue')
-      },
-      {
-        path: 'community',
-        name: 'community',
-        component: () => import('@/views/Community/index.vue')
+        component: () => import('@/views/Mine/index.vue'),
       }
     ]
+  },
+  {
+    path: '/userinfo/:id',
+    name: 'userinfo',
+    component: () => import('@/views/Mine/userInfo.vue'),
+    props: true
+  },
+  {
+    path: '/subscribe/:id',
+    name: 'subscribe',
+    component: () => import('@/views/Subscribe/index.vue'),
+    props: true
   },
   {
     path: '/login',
@@ -52,10 +49,30 @@ const routes = [
     props: true
   },
   {
+    path: '/square',
+    name: 'square',
+    component: () => import('@/views/SongSheet/Square.vue')
+  },
+  {
+    path: '/toplist',
+    name: 'toplist',
+    component: () => import('@/views/SongSheet/TopList.vue')
+  },
+  {
     path: '/fm/:id',
     name: 'fm',
     component: () => import('@/views/FM/index.vue'),
     props: true
+  },
+  {
+    path: '/level',
+    name: 'level',
+    component: () => import('@/views/MyLevel/index.vue')
+  },
+  {
+    path: '/recommend',
+    name: 'recommend',
+    component: () => import('@/views/Recommend/index.vue')
   }
 ]
 

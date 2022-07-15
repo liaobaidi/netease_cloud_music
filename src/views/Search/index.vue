@@ -1,27 +1,18 @@
 <template>
-  <van-nav-bar :border="false" @click-left="router.go(-1)">
+  <van-nav-bar :border="false" fixed safe-area-inset-top placeholder @click-left="router.go(-1)">
     <template #left>
       <svg-icon icon-class="leftArrow" style="font-size: 6vw" />
     </template>
     <template #title>
-      <input class="searchInp" type="text" :placeholder="query.keyWord" />
+      <input v-model="searchInfo" v-focus class="searchInp van-ellipsis" type="text" :placeholder="query.keyWord || keyword" @keyup.enter="toSearch(searchInfo)" />
     </template>
   </van-nav-bar>
-  <div v-if="historySearchList.length" class="history flex flex-bet padding4vw marginTop20">
-    <span>历史</span>
-    <div class="hisList relative">
-      <div class="absolute">
-        <span class="hisword text-center marginRight10" v-for="item in historySearchList" :key="item">{{ item }}</span>
-      </div>
-    </div>
-    <van-icon class-prefix="net" name="icon" color="#7a7e81" />
-  </div>
-  <van-tabs v-model:active="activeName" swipeable line-height="0" background="#151515" class="marginTop20">
+  <van-tabs v-if="!showResult" v-model:active="activeName" swipeable line-height="0" background="#151515" class="marginTop20">
     <van-tab title="热搜榜" name="热搜榜">
       <div class="tab_content flex flex-col flex-bet">
         <div v-if="activeName === '热搜榜'">
           <div class="flex flex-wrap flex-bet" :style="showMore ? 'height: calc(450 / 1667 * 100vh)' : 'height: calc(900 / 1667 * 100vh)'">
-            <div v-for="(item, index) in hotSearchList" :key="item.first" class="top_item van-ellipsis">
+            <div v-for="(item, index) in hotSearchList" :key="item.first" class="top_item van-ellipsis" @click="toSearch(item.first || item.searchWord)">
               <span class="marginRight10" :style="index < 3 ? 'color: #d03333' : 'color: #7a7e81'">{{ index + 1 }}</span>
               <span>{{ item.first || item.searchWord }}</span>
             </div>
@@ -47,17 +38,74 @@
       </div>
     </van-tab>
   </van-tabs>
+
+  <van-tabs v-else v-model:active="searchName" swipeable sticky offset-top="7vh" line-height="0" background="#2c2c2c">
+    <van-tab v-for="item in tablist" :key="item" :name="item" :title="item">
+      <div v-if="item === '单曲'">
+        <div v-for="song in resultList[item]" :key="song.id" class="music-item flex flex-acenter">
+          <MusicItem :show-pic="false" :album-name="song.name" :author-name="getAuthors(song.ar)" :description="song.al.name" />
+        </div>
+      </div>
+      <div v-if="item === '歌单'">
+        <div v-for="playlist in resultList[item]" :key="playlist.id" class="music-item flex flex-acenter" @click="router.push({ name: 'songsheet', params: { id: playlist.id } })">
+          <div class="cover marginRight10">
+            <van-image :src="playlist.coverImgUrl" radius="1vh" />
+          </div>
+          <div class="main flex flex-col flex-center">
+            <div class="playlist-name van-ellipsis">{{ playlist.name }}</div>
+            <div class="playlist-author van-ellipsis">{{ playlist.trackCount }}首, by {{ playlist.creator.nickname }}, 播放 {{ countUnit(playlist.playCount) }}次</div>
+          </div>
+        </div>
+      </div>
+      <div v-if="item === '专辑'">
+        <div v-for="album in resultList[item]" :key="album.id" class="music-item flex flex-acenter" @click="router.push({ name: 'songsheet', params: { id: album.id, al: 1 } })">
+          <div class="cover marginRight10">
+            <van-image :src="album.picUrl" radius="1vh" />
+          </div>
+          <div class="main flex flex-col flex-center">
+            <div class="playlist-name van-ellipsis">{{ album.name }}</div>
+            <div class="playlist-author van-ellipsis">{{ getAuthors(album.artists) }} {{ dayjs(album.publishTime).format('YYYY.M.D') }}</div>
+          </div>
+        </div>
+      </div>
+      <div v-if="item === '歌手' || item === '用户'">
+        <div v-if="resultList[item].length">
+          <div v-for="user in resultList[item]" :key="user.id || user.userId" class="music-item flex flex-acenter relative" @click="item === '用户' && router.push({ name: 'userinfo', params: { id: user.userId } })">
+            <div class="cover marginRight20">
+              <van-image :src="user.img1v1Url || user.avatarUrl" round loading-icon="./static/img/logo.png" />
+            </div>
+            <div class="main flex flex-col flex-center">
+              <div class="playlist-name van-ellipsis">{{ user.name || user.nickname }}</div>
+            </div>
+            <div v-if="user.followed" class="absolute sub flex flex-center flex-acenter" style="color: #aaa" @click.stop="triggleFollow(user.id, 2)"><van-icon name="success" size="1.8vh" color="#aaa" />已关注</div>
+            <div v-else class="absolute sub flex flex-center flex-acenter" @click.stop="triggleFollow(user.id, 1)"><van-icon name="plus" size="1.8vh" color="red" />关注</div>
+          </div>
+        </div>
+        <div v-else class="nodata flex flex-col flex-center flex-acenter">
+          <van-icon class-prefix="net" name="nodata" size="40vw" />
+          <span class="marginTop20">什么都没有找到</span>
+        </div>
+      </div>
+    </van-tab>
+  </van-tabs>
 </template>
 
 <script>
-import { computed, nextTick, onMounted, reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import BScroll from '@better-scroll/core'
-import { getHotSearchList, getHotSearchListDetail, getTopicList } from '@/api/search.js'
+import { getHotSearchList, getHotSearchListDetail, getTopicList, getSearchDefault, search } from '@/api/search.js'
+import { followUser } from '@/api/user.js'
 import countUnit from '@/utils/countUnit.js'
+import { getAuthors } from '@/utils'
+import dayjs from 'dayjs'
+import MusicItem from '@/components/musicItem.vue'
+import { Toast } from 'vant'
 
 export default {
   name: 'Search',
+  components: {
+    MusicItem
+  },
   setup() {
     let route = useRoute()
     let router = useRouter()
@@ -68,15 +116,24 @@ export default {
     let hotSearchList = reactive([]) // 热搜
     let hotTopicList = reactive([]) // 话题
     let showMore = ref(true)
-    query = route.query
-    onMounted(() => {
-      nextTick(() => {
-        new BScroll('.hisList', {
-          scrollX: true,
-          scrollY: false
-        })
-      })
-    })
+    let keyword = ref('')
+    let showResult = ref(false)
+    query = reactive(route.query)
+
+    watch(
+      query,
+      () => {
+        if (!query.keyWord) {
+          getSearchDefault().then((res) => {
+            if (res.code === 200) {
+              keyword.value = res.data.realkeyword
+            }
+          })
+        }
+      },
+      { deep: true, immediate: true }
+    )
+
     getHotSearchList().then((res) => {
       // console.log(res, 'getHotSearchList')
       if (res.code === 200) {
@@ -86,7 +143,6 @@ export default {
     const getDetail = async () => {
       const res1 = await getHotSearchListDetail()
       const res2 = await getTopicList({ limit: 10, offset: 10, timestamp: Date.now() * 1000 })
-      // console.log(res, 'getHotSearchListDetail')
       if (res1.code === 200) {
         showMore.value = false
         hotSearchList.length = 0
@@ -105,6 +161,98 @@ export default {
       }
     })
 
+    let searchInfo = ref('')
+    let offset = ref(0)
+    let limit = ref(30)
+    let tablist = ['单曲', '歌单', '专辑', '歌手', '用户']
+    let type = ref(1)
+    let searchName = ref('单曲')
+    let resultList = reactive({
+      单曲: [],
+      歌单: [],
+      专辑: [],
+      歌手: [],
+      用户: []
+    })
+
+    watch(searchName, () => {
+      switch (searchName.value) {
+        case '单曲':
+          type.value = 1
+          break
+        case '歌单':
+          type.value = 1000
+          break
+        case '专辑':
+          type.value = 10
+          break
+        case '歌手':
+          type.value = 100
+          break
+        case '用户':
+          type.value = 1002
+          break
+      }
+      toSearch(searchInfo.value)
+    })
+
+    const toSearch = (key) => {
+      searchInfo.value = key
+      if (!searchInfo.value) {
+        searchInfo.value = query.keyWord || keyword.value
+      }
+      search({ keywords: searchInfo.value, limit: limit.value, offset: offset.value, type: type.value }).then((res) => {
+        console.log(res)
+        if (res.code === 200) {
+          switch (type.value) {
+            case 1:
+              resultList['单曲'].length = 0
+              resultList['单曲'].push(...res.result.songs)
+              break
+            case 1000:
+              resultList['歌单'].length = 0
+              resultList['歌单'].push(...res.result.playlists)
+              break
+            case 10:
+              resultList['专辑'].length = 0
+              resultList['专辑'].push(...res.result.albums)
+              break
+            case 100:
+              resultList['歌手'].length = 0
+              if (res.result.artistCount) {
+                resultList['歌手'].push(...res.result.artists)
+              }
+
+              break
+            case 1002:
+              resultList['用户'].length = 0
+              if (JSON.stringify(res.result) === '{}') {
+                break
+              }
+              resultList['用户'].push(...res.result.userprofiles)
+              break
+          }
+          showResult.value = true
+        }
+      })
+    }
+
+    const triggleFollow = (id, type) => {
+      followUser({ id, t: type }).then((res) => {
+        if (res.code === 200) {
+          let msg = ''
+          if (type === 1) {
+            msg = '关注成功！'
+          } else {
+            msg = '取关成功！'
+          }
+          Toast.success(msg)
+        } else {
+          Toast.fail(res.data.blockText)
+        }
+      })
+    }
+
     return {
       query,
       router,
@@ -115,7 +263,17 @@ export default {
       showMore,
       hotTopicList,
       getDetail,
-      countUnit
+      countUnit,
+      keyword,
+      searchInfo,
+      showResult,
+      tablist,
+      resultList,
+      searchName,
+      toSearch,
+      getAuthors,
+      dayjs,
+      triggleFollow
     }
   }
 }
@@ -129,35 +287,16 @@ export default {
   outline: none;
   border-bottom: 1px solid #7a7e81;
   width: 78vw;
-  height: getvh(80);
+  height: 6vh;
   color: #bbb;
 }
 :deep(.van-nav-bar__title) {
   max-width: 100%;
   margin-left: 15vw;
 }
-.history {
-  font-size: 3.7333vw;
-  .hisList {
-    overflow: hidden;
-    width: 70vw;
-    height: getvh(50);
-    white-space: nowrap;
-    .hisword {
-      height: getvh(50);
-      line-height: getvh(50);
-      background-color: var(--sub-theme-color);
-      border-radius: getvh(25);
-      padding: 0 3vw;
-    }
-  }
-}
-:deep(.van-tabs__wrap) {
-  padding-left: 10vw;
-}
-:deep(.van-tab) {
-  flex: none;
-  margin-right: 2.6667vw;
+:deep(.van-sticky .van-tabs__wrap) {
+  padding-left: 4vw;
+  background-color: #2c2c2c;
 }
 .tab_content {
   width: 80vw;
@@ -174,5 +313,40 @@ export default {
     font-size: 3.4667vw;
     color: #7a7e81;
   }
+}
+.music-item {
+  padding-left: 3vw;
+  height: 8vh;
+  .cover {
+    width: 7vh;
+    height: 7vh;
+  }
+  .main {
+    height: 100%;
+    font-size: 4vw;
+    .playlist-author {
+      color: #7a7e81;
+      font-size: 3.2vw;
+    }
+    .playlist-name {
+      width: calc(100vw - 7vh - 10px - 4vw);
+    }
+  }
+  .sub {
+    width: 14vw;
+    height: 4vh;
+    border-radius: 2vh;
+    color: red;
+    border: 1px solid currentColor;
+    right: 4vw;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1vh;
+  }
+}
+.nodata {
+  height: 86vh;
+  width: 100vw;
+  font-size: 6vw;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <van-popup v-model:show="show" :style="{ height: '100vh', width: '85vw', backgroundColor: 'var(--theme-color)' }" teleport="body" position="left">
     <div class="flex flex-col flex-acenter flex-bet popup-container">
-      <div class="flex flex-col flex-acenter flex-bet" style="height: 26vh">
+      <div class="flex flex-col flex-acenter flex-bet" style="height: 26vh" @click="router.push({ name: 'userinfo', params: {id: userInfo.userId} })">
         <van-image :src="userInfo.avatarUrl || ''" round width="20vh" height="20vh" />
         <div>
           <span>{{ userInfo.nickname || '' }}</span>
@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref, toRefs } from 'vue'
 import { useStore } from 'vuex'
 import { getUserInfo } from '@/api/user.js'
 import { Toast } from 'vant'
@@ -47,6 +47,17 @@ export default {
     const router = useRouter()
     let userid = store.getters.userid
     let userInfo = reactive({})
+    let bgColor = toRefs(props)
+
+    onMounted(() => {
+      getUserInfo({ uid: userid }).then((res) => {
+        // console.log(res, 'userinfo')
+        if (res.code === 200) {
+          Object.assign(userInfo, res.profile)
+        }
+      })
+    })
+
     const actions = [
       { name: '关闭云音乐', color: '#fff' },
       { name: '退出登陆', color: '#fff' }
@@ -54,12 +65,6 @@ export default {
     const showPopup = () => {
       show.value = true
       // console.log(userid, ' userid')
-      getUserInfo({ uid: userid }).then((res) => {
-        // console.log(res, 'userinfo')
-        if (res.code === 200) {
-          Object.assign(userInfo, res.profile)
-        }
-      })
     }
     const showClose = () => {
       close.value = true
@@ -72,7 +77,7 @@ export default {
         return
       }
       store.dispatch('user/logout').then((res) => {
-        if(res.code === 200) {
+        if (res.code === 200) {
           Toast.success('您已退出登录')
           router.push({ name: 'login', path: '/login' })
         }
@@ -83,6 +88,8 @@ export default {
       userInfo,
       close,
       actions,
+      bgColor,
+      router,
       showPopup,
       showClose,
       handlerClose

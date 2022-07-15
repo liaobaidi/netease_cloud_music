@@ -45,3 +45,49 @@ export const getUserInfo = (params) => {
     params
   })
 }
+
+export const followUser = (params) => {
+  return request({
+    url: '/follow',
+    method: 'GET',
+    params
+  })
+} 
+
+export const getLoginStatus = () => {
+  return request({
+    url: '/login/status',
+    method: 'GET'
+  })
+}
+
+export const getUserPlaylist = (params) => {
+  return request({
+    url: '/user/playlist',
+    method: 'GET',
+    params
+  })
+}
+
+export const getFollows = (params) => {
+  return request({
+    url: '/user/follows',
+    method: 'GET',
+    params
+  })
+}
+
+export const getFolloweds = (params) => {
+  return request({
+    url: '/user/followeds',
+    method: 'GET',
+    params
+  })
+}
+
+export const getLevelInfo = () => {
+  return request({
+    url: '/user/level',
+    method: 'GET'
+  })
+}

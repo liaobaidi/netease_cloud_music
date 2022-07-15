@@ -7,9 +7,71 @@
   font-size: 5vw;
 }
 
+.van-dialog__content--isolated {
+  color: gray;
+  align-items: flex-start !important;
+  min-height: 10vh !important;
+}
+
+.van-dialog__message {
+  text-align: left !important;
+  font-size: 4vw !important;
+}
+
+.van-dialog__footer {
+  display: block !important;
+  position: relative !important;
+  height: 4vh !important;
+  &::after {
+    display: none !important;
+  }
+}
+.van-hairline--left:after {
+  display: none !important;
+}
+.van-dialog__cancel,
+.van-dialog__confirm {
+  position: absolute !important;
+  width: 12vw !important;
+  bottom: 0;
+  right: 4vw;
+  background-color: #2c2c2c !important;
+  height: 4vh !important;
+  &::before {
+    display: none !important;
+  }
+  .van-button__content {
+    display: block !important;
+    text-align: center;
+    line-height: 4vh;
+    font-size: 3.6vw;
+    &::before {
+      display: none;
+    }
+  }
+}
+
+.van-dialog__cancel {
+  right: 16vw;
+}
+
 .van-action-sheet__description {
   padding: 0 !important;
   &::after {
     display: none;
+  }
+}
+
+.van-tabs__wrap {
+  padding-left: 4vw;
+  .van-tabs__nav {
+    background-color: var(--theme-color);
+    .van-tab {
+      flex: none;
+      margin-right: 2.6667vw;
+    }
+    .van-tabs__line {
+      display: none;
+    }
   }
 }
