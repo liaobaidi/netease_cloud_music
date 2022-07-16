@@ -6,7 +6,7 @@
   <div style="height: 8vh" />
   <div class="main flex flex-wrap">
     <div v-for="item in list" :key="item.id" class="item flex flex-center">
-      <MusicCart :pic-url="item.coverImgUrl" :info="item.name" :count="item.playCount" :id="item.id" />
+      <MusicCart :pic-url="item.coverImgUrl" :info="item.name" :count="item.playCount" :id="item.id" is-top="1" />
     </div>
   </div>
 </template>

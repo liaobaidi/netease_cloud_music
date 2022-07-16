@@ -7,7 +7,7 @@
   <van-tabs v-model:active="tagName" swipeable sticky offset-top="6vh">
     <van-tab v-for="item in tags" :key="item" :title="item" :name="item">
       <div class="container flex flex-wrap">
-        <div v-for="play in list" :key="play.id" class="item flex flex-center flex-acenter">
+        <div v-for="play in list[item]" :key="play.id" class="item flex flex-center flex-acenter">
           <MusicCart :pic-url="play.coverImgUrl" :info="play.name" :count="play.playCount" :id="play.id" />
         </div>
       </div>
@@ -24,27 +24,35 @@ export default {
   name: 'Square',
   components: { MusicCart },
   setup() {
-    let list = reactive([])
+    let list = reactive({})
     const router = useRouter()
     let offset = ref(1)
     let tagName = ref('全部')
     let tags = reactive(['全部', '华语', '古风', '流行', '欧美', '影视原声', '怀旧', '校园', '日语', '夜晚', '游戏'])
     const getList = (key) => {
       getSongSquare({ cat: key, offset: offset.value, limit: 50 }).then((res) => {
-        // console.log(res, 'getSongSquare')
+        console.log(res, 'getSongSquare')
         if (res.code === 200) {
-          list.length = 0
-          list.push(...res.playlists)
+          if (list[key] && list[key].length) {
+            return
+          }
+          if (!list[key]) {
+            list[key] = []
+            list[key].push(...res.playlists)
+          }
         }
       })
     }
-    watch(
-      tagName,
-      () => {
-        getList(tagName.value)
-      },
-      { immediate: true, deep: true }
-    )
+    tags.forEach((item) => {
+      getList(item)
+    })
+    // watch(
+    //   tagName,
+    //   () => {
+    //     getList(tagName.value)
+    //   },
+    //   { immediate: true, deep: true }
+    // )
     return {
       router,
       tagName,

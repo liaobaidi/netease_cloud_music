@@ -12,7 +12,7 @@
           </div>
           <div class="nickname marginLeft10">{{ item.nickname }}</div>
         </div>
-        <div v-if="+id === store.getters.userid" class="icon">
+        <div v-if="id === store.getters.userid" class="icon">
           <van-icon name="ellipsis" @click.stop="openSubscribe(item.followed, item.userId)" />
         </div>
       </div>
@@ -25,7 +25,7 @@
           </div>
           <div class="nickname marginLeft10">{{ item.nickname }}</div>
         </div>
-        <div v-if="+id === store.getters.userid" class="icon">
+        <div v-if="id === store.getters.userid" class="icon">
           <van-icon name="ellipsis" @click.stop="openSubscribe(item.followed, item.userId)" />
         </div>
       </div>

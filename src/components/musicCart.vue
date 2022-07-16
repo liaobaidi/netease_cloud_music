@@ -40,10 +40,14 @@ export default {
     isFM: {
       type: Boolean,
       default: false
+    },
+    isTop: {
+      type: [Number, String],
+      default: 0
     }
   },
   setup(props) {
-    const { picUrl, info, count, id, isFM } = toRefs(props)
+    const { picUrl, info, count, id, isFM, isTop } = toRefs(props)
     const router = useRouter()
 
     const toLink = () => {
@@ -52,7 +56,7 @@ export default {
         // router.push({ name: 'fm', params: { id: id.value } })
         return
       }
-      router.push({ name: 'songsheet', params: { id: id.value } })
+      router.push({ name: 'songsheet', params: { id: id.value, istop: isTop.value } })
     }
     return {
       picUrl,

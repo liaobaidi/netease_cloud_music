@@ -1,7 +1,7 @@
 <template>
-  <div class="music-item flex flex-acenter">
+  <div class="music-item flex flex-acenter" @click="router.push({ name: 'listen', params: { id } })">
     <div v-if="showPic" class="pic marginRight10 flex flex-center flex-acenter">
-      <van-image :src="picUrl || './static/img/loadingErroe.png'" fit="fill" error-icon="./static/img/loadingErroe.png" />
+      <van-image :src="picUrl" fit="fill" error-icon="./static/img/loadingErroe.png" />
     </div>
     <div v-if="index" :class="['flex flex-center flex-acenter marginRight10', showPic ? '' : 'nopic']" :style="parseInt(isTop) && index <= 3 ? 'color: #d03333' : ''">
       {{ index }}
@@ -19,6 +19,7 @@
 
 <script>
 import { toRefs } from '@vue/reactivity'
+import { useRouter } from 'vue-router'
 export default {
   name: 'MusicItem',
   props: {
@@ -28,7 +29,7 @@ export default {
     },
     picUrl: {
       type: String,
-      default: ''
+      default: './static/img/loadingErroe.png'
     },
     albumName: {
       type: String,
@@ -59,16 +60,19 @@ export default {
       default: false
     }
   },
-  setup(prop) {
-    const { picUrl, albumName, authorName, description, index, showPic, id, isTop } = toRefs(prop)
+  setup(props) {
+    const { picUrl, albumName, authorName, description, index, showPic, id, isTop } = toRefs(props)
+    const router = useRouter()
     return {
+      router,
       picUrl,
       albumName,
       authorName,
       description,
       index,
       showPic,
-      isTop
+      isTop,
+      id
     }
   }
 }

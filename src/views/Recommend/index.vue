@@ -13,7 +13,7 @@
     </div>
     <div class="main-body">
       <div v-for="item in list" :key="item.id" class="item">
-        <MusicItem :pic-url="item.al.picUrl" :album-name="item.name" :author-name="getAuthors(item.ar)" :description="item.al.name" />
+        <MusicItem :id="item.id" :pic-url="item.al.picUrl" :album-name="item.name" :author-name="getAuthors(item.ar)" :description="item.al.name" />
       </div>
     </div>
   </div>

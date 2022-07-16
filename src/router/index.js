@@ -59,10 +59,13 @@ const routes = [
     component: () => import('@/views/SongSheet/TopList.vue')
   },
   {
-    path: '/fm/:id',
-    name: 'fm',
-    component: () => import('@/views/FM/index.vue'),
-    props: true
+    path: '/listen/:id',
+    name: 'listen',
+    component: () => import('@/views/Listen/index.vue'),
+    props: true,
+    meta: {
+      keepAlive: true
+    }
   },
   {
     path: '/level',

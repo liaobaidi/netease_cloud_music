@@ -27,18 +27,8 @@
         <div v-else @click="router.push({ name: 'level', query: { url: info.avatarUrl } })">村龄 {{ createDays }} 天</div>
       </div>
     </div>
-    <!-- <van-sticky offset-top="6vh">
-      <div class="menu flex flex-ard">
-        <div :class="['menu-item', !active ? 'active' : '']" @click="tolink(false)">
-          <span style="z-index: 1">创建歌单</span>
-        </div>
-        <div :class="['menu-item', active ? 'active' : '']" @click="tolink(true)">
-          <span>收藏歌单</span>
-        </div>
-      </div>
-    </van-sticky> -->
-    <van-tabs v-model:active="active" scrollspy sticky offset-top="6vh">
-      <van-tab title="创建歌单">
+    <van-tabs v-model:active="chooseName" scrollspy sticky offset-top="6vh">
+      <van-tab title="创建歌单" name="创建歌单">
         <div v-if="userplaylist.length" class="playlist marginTop10">
           <div class="playlist-header">创建歌单({{ userplaylist.length }}个)</div>
           <div v-for="item in userplaylist" :key="item.id" class="items flex" @click="router.push({ name: 'songsheet', params: { id: item.id } })">
@@ -55,7 +45,7 @@
           </div>
         </div>
       </van-tab>
-      <van-tab title="收藏歌单">
+      <van-tab title="收藏歌单" name="收藏歌单">
         <div v-if="subscribedlist.length" class="playlist marginTop20">
           <div class="playlist-header">收藏歌单({{ subscribedlist.length }}个)</div>
           <div v-for="item in subscribedlist" :key="item.id" class="items flex" @click="router.push({ name: 'songsheet', params: { id: item.id } })">
@@ -116,6 +106,7 @@ export default {
       { name: '分享歌单', icon: 'fenxiang', type: 0, id: [] },
       { name: '删除歌单', icon: 'icon', type: 1, id: [] }
     ]
+    let chooseName = ref('创建歌单')
     onMounted(() => {
       document.addEventListener('scroll', scrollHandler)
     })
@@ -222,6 +213,7 @@ export default {
       showDelete,
       deleteActions,
       currentName,
+      chooseName,
       tolink,
       openDelete,
       handleDelete,

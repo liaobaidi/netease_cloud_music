@@ -114,13 +114,13 @@ export const getBirth = (timeStr) => {
 }
 
 export const getAuthors = (authorList) => {
-  if(authorList.length === 1) {
+  if (authorList.length === 1) {
     return authorList[0].name
   }
   let result = ''
-  for(let i = 0; i < authorList.length; i++) {
+  for (let i = 0; i < authorList.length; i++) {
     result += authorList[i].name
-    if(i !== authorList.length - 1) {
+    if (i !== authorList.length - 1) {
       result += '/'
     }
   }

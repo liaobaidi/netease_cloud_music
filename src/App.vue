@@ -1,5 +1,16 @@
 <template>
-  <router-view />
+  <!-- <keep-alive>
+    <router-view />
+  </keep-alive> -->
+  <router-view v-slot="{ Component }">
+    <transition>
+      <div id="app">
+        <keep-alive include="Listen">
+          <component :is="Component" />
+        </keep-alive>
+      </div>
+    </transition>
+  </router-view>
 </template>
 
 <script>

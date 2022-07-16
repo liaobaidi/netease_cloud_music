@@ -25,7 +25,7 @@
       <div class="tab_content flex flex-col flex-bet">
         <div class="flex flex-col" :style="showMore ? 'height: calc(450 / 1667 * 100vh)' : 'height: calc(900 / 1667 * 100vh)'">
           <div v-if="hotTopicList.length">
-            <div v-for="(item, index) in hotTopicList" :key="item.title" class="top_item van-ellipsis flex flex-bet" style="width: 100%">
+            <div v-for="(item, index) in hotTopicList" :key="item.title" class="top_item van-ellipsis flex flex-bet" style="width: 100%" @click="toSearch(item.title || item.searchWord)">
               <div>
                 <span class="marginRight10" :style="index < 3 ? 'color: #d03333' : 'color: #7a7e81'">{{ index + 1 }}</span>
                 <span>{{ item.title || '' }}</span>
@@ -179,18 +179,23 @@ export default {
       switch (searchName.value) {
         case '单曲':
           type.value = 1
+          if(resultList['单曲'].length) return
           break
         case '歌单':
           type.value = 1000
+          if(resultList['歌单'].length) return
           break
         case '专辑':
           type.value = 10
+          if(resultList['专辑'].length) return
           break
         case '歌手':
           type.value = 100
+          if(resultList['歌手'].length) return
           break
         case '用户':
           type.value = 1002
+          if(resultList['用户'].length) return
           break
       }
       toSearch(searchInfo.value)

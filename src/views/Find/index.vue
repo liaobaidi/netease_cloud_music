@@ -4,13 +4,13 @@
       <Header>
         <template #search>
           <div class="search flex flex-center flex-acenter" @click="toLink('search')">
-            <span class="net net-sousuo marginLeft20" />
+            <span class="net net-sousuo" />
             &nbsp;
             <span class="van-ellipsis">{{ searchKey }}</span>
           </div>
         </template>
         <template #right>
-          <span class="net net-ziyuan" />
+          <span class="net net-ziyuan icon-size" />
         </template>
       </Header>
     </header>
@@ -75,7 +75,7 @@
           </template>
         </CartItem>
       </div>
-      <div class="cart-item">
+      <!-- <div class="cart-item">
         <CartItem>
           <template #left>
             <span>数字专辑</span>
@@ -96,7 +96,7 @@
             </swiper-action>
           </template>
         </CartItem>
-      </div>
+      </div> -->
       <div class="cart-item" style="height: calc(666 / 1667 * 100vh)">
         <CartItem>
           <template #left>
@@ -123,32 +123,12 @@
                   </template>
                   <template #main>
                     <div class="flex flex-col">
-                      <MusicItem v-for="(it, i) in topList.info[index]" :key="it.id" :index="i + 1" :pic-url="it.al.picUrl" :album-name="it.name" :author-name="it.ar[0].name" :description="it.al.name" class="musiclist" />
+                      <MusicItem v-for="(it, i) in topList.info[index]" :key="it.id" :id="it.id" :index="i + 1" :pic-url="it.al.picUrl" :album-name="it.name" :author-name="it.ar[0].name" :description="it.al.name" class="musiclist" />
                     </div>
                   </template>
                 </CartItem>
               </div>
             </swiper-action>
-          </template>
-        </CartItem>
-      </div>
-      <div class="cart-item">
-        <CartItem>
-          <template #left>
-            <span>推荐电台</span>
-          </template>
-          <template #right>
-            <div class="flex flex-center flex-acenter right-text">
-              <span>更多</span>
-              <van-icon name="arrow" />
-            </div>
-          </template>
-          <template #main>
-            <div class="scrollx flex">
-              <div v-for="item in recommendFM" :key="item.id" class="music-item FM">
-                <MusicCart :id="item.id" :pic-url="item.picUrl" :info="item.name" :isFM="true" />
-              </div>
-            </div>
           </template>
         </CartItem>
       </div>
@@ -166,7 +146,6 @@ import MusicItem from '@/components/musicItem.vue'
 import { getSearchDefault } from '@/api/search.js'
 import { getFindData, getBanners, getBallList } from '@/api/app.js'
 import { getRecommendList, getSpecialListTags, getSpecialList, getAlbumList, getTopLists, getPlayListDetail } from '@/api/songList.js'
-import { getRecommendFM } from '@/api/fm.js'
 import { Notify, Toast } from 'vant'
 import { useRouter } from 'vue-router'
 export default {
@@ -196,7 +175,6 @@ export default {
     }) // 排行榜前五个数据集
     let topListAction = ref(null)
     let topListCurrentIndex = ref(0)
-    let recommendFM = reactive([]) // 推荐电台
     let router = useRouter()
 
     getBanners().then((res) => {
@@ -270,9 +248,9 @@ export default {
     // })
     onMounted(() => {
       nextTick(() => {
-        swiperAction = document.querySelector('#albumList')
+        // swiperAction = document.querySelector('#albumList')
         topListAction = document.querySelector('#topList')
-        swiperAction.style.left = 0
+        // swiperAction.style.left = 0
         topListAction.style.left = 0
       })
     })
@@ -282,15 +260,15 @@ export default {
 
     const changeDirection = (e, key) => {
       if (e.direction === 'left') {
-        if (key === 'albumList') {
-          albumCurrentIndex.value++
-          if (albumCurrentIndex.value < albumTotal.value) {
-            swiperAction.style.left = -92 + parseInt(swiperAction.style.left) + 'vw'
-          } else {
-            albumCurrentIndex.value = albumTotal.value - 1
-            return
-          }
-        }
+        // if (key === 'albumList') {
+        //   albumCurrentIndex.value++
+        //   if (albumCurrentIndex.value < albumTotal.value) {
+        //     swiperAction.style.left = -92 + parseInt(swiperAction.style.left) + 'vw'
+        //   } else {
+        //     albumCurrentIndex.value = albumTotal.value - 1
+        //     return
+        //   }
+        // }
         if (key === 'topList') {
           topListCurrentIndex.value++
           if (topListCurrentIndex.value < 5) {
@@ -301,15 +279,15 @@ export default {
           }
         }
       } else {
-        if (key === 'albumList') {
-          albumCurrentIndex.value--
-          if (albumCurrentIndex.value < 0) {
-            albumCurrentIndex.value = 0
-            return
-          } else {
-            swiperAction.style.left = 92 + parseInt(swiperAction.style.left) + 'vw'
-          }
-        }
+        // if (key === 'albumList') {
+        //   albumCurrentIndex.value--
+        //   if (albumCurrentIndex.value < 0) {
+        //     albumCurrentIndex.value = 0
+        //     return
+        //   } else {
+        //     swiperAction.style.left = 92 + parseInt(swiperAction.style.left) + 'vw'
+        //   }
+        // }
         if (key === 'topList') {
           topListCurrentIndex.value--
           if (topListCurrentIndex.value < 0) {
@@ -332,13 +310,6 @@ export default {
           }
         })
       })
-    })
-
-    getRecommendFM().then((res) => {
-      // console.log(res, 'res')
-      if (res.code === 200) {
-        recommendFM.push(...res.result)
-      }
     })
 
     const toLink = (key) => {
@@ -371,7 +342,6 @@ export default {
       albumList,
       albumTotal,
       topList,
-      recommendFM,
       changeSpecialList,
       changeDirection,
       toLink,
