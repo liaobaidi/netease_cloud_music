@@ -43,7 +43,7 @@
     <van-tab v-for="item in tablist" :key="item" :name="item" :title="item">
       <div v-if="item === '单曲'">
         <div v-for="song in resultList[item]" :key="song.id" class="music-item flex flex-acenter">
-          <MusicItem :show-pic="false" :album-name="song.name" :author-name="getAuthors(song.ar)" :description="song.al.name" />
+          <MusicItem :id="song.id" :show-pic="false" :album-name="song.name" :author-name="getAuthors(song.ar)" :description="song.al.name" />
         </div>
       </div>
       <div v-if="item === '歌单'">
@@ -91,7 +91,7 @@
 </template>
 
 <script>
-import { reactive, ref, watch } from 'vue'
+import { onActivated, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getHotSearchList, getHotSearchListDetail, getTopicList, getSearchDefault, search } from '@/api/search.js'
 import { followUser } from '@/api/user.js'
@@ -118,7 +118,7 @@ export default {
     let showMore = ref(true)
     let keyword = ref('')
     let showResult = ref(false)
-    query = reactive(route.query)
+    Object.assign(query, route.query)
 
     watch(
       query,
@@ -133,6 +133,17 @@ export default {
       },
       { deep: true, immediate: true }
     )
+
+    onActivated(() => {
+      Object.assign(query, route.query)
+      // console.log(query.show, 'query.show')
+      if (+query.show) {
+        showResult.value = false
+        searchInfo.value = ''
+      } else {
+        showResult.value = true
+      }
+    })
 
     getHotSearchList().then((res) => {
       // console.log(res, 'getHotSearchList')
@@ -179,23 +190,23 @@ export default {
       switch (searchName.value) {
         case '单曲':
           type.value = 1
-          if(resultList['单曲'].length) return
+          if (resultList['单曲'].length) return
           break
         case '歌单':
           type.value = 1000
-          if(resultList['歌单'].length) return
+          if (resultList['歌单'].length) return
           break
         case '专辑':
           type.value = 10
-          if(resultList['专辑'].length) return
+          if (resultList['专辑'].length) return
           break
         case '歌手':
           type.value = 100
-          if(resultList['歌手'].length) return
+          if (resultList['歌手'].length) return
           break
         case '用户':
           type.value = 1002
-          if(resultList['用户'].length) return
+          if (resultList['用户'].length) return
           break
       }
       toSearch(searchInfo.value)
@@ -212,6 +223,8 @@ export default {
           switch (type.value) {
             case 1:
               resultList['单曲'].length = 0
+              let tempIds = res.result.songs.map((item) => item.id)
+              localStorage.setItem('tempids', JSON.stringify(tempIds))
               resultList['单曲'].push(...res.result.songs)
               break
             case 1000:

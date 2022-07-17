@@ -7,7 +7,7 @@
       <span style="width: 80%" class="van-ellipsis text-center"
         >{{ info.name }}<span v-if="info.alia && info.alia.length">({{ info.alia[0] }})</span></span
       >
-      <span class="absolute author-name">{{ info.ar && getAuthors(info.ar) }}</span>
+      <span style="width: 40%" class="absolute author-name text-center van-ellipsis">{{ info.ar && getAuthors(info.ar) }}</span>
     </div>
   </div>
 
@@ -35,19 +35,19 @@
       </div>
       <div class="bottom flex flex-bet flex-acenter">
         <div>
-          <van-icon class-prefix="net" name="liebiaoxunhuan" size="4vh" />
-          <!-- <van-icon class-prefix="net" name="suijibofang" size="4vh" />
-          <van-icon class-prefix="net" name="hanhan-01-01" size="4vh" /> -->
+          <van-icon v-if="play_type === 0" class-prefix="net" name="liebiaoxunhuan" size="4vh" @click="triggle" />
+          <van-icon v-if="play_type === 1" class-prefix="net" name="suijibofang" size="4vh" @click="triggle" />
+          <van-icon v-if="play_type === 2" class-prefix="net" name="hanhan-01-01" size="4vh" @click="triggle" />
         </div>
         <div>
-          <van-icon class-prefix="net" name="48shangyishou" size="4vh" />
+          <van-icon class-prefix="net" name="48shangyishou" size="4vh" @click="play_previous" />
         </div>
         <div>
-          <van-icon class-prefix="net" name="bofang" size="5vh" />
-          <!-- <van-icon class-prefix="net" name="zanting" size="5vh" /> -->
+          <van-icon v-if="pause" class-prefix="net" name="bofang" size="5vh" @click="pause = false" />
+          <van-icon v-else class-prefix="net" name="zanting" size="5vh" @click="pause = true" />
         </div>
         <div>
-          <van-icon class-prefix="net" name="49xiayishou" size="4vh" />
+          <van-icon class-prefix="net" name="49xiayishou" size="4vh" @click="play_next" />
         </div>
         <div>
           <van-icon class-prefix="net" name="24gf-playlist" size="3vh" />
@@ -60,10 +60,11 @@
 <script>
 import { useRouter } from 'vue-router'
 import { getMusicDetail, getLyric, getMusicUrl, likeMusic, getLikeList } from '@/api/music.js'
-import { reactive, ref, toRefs } from '@vue/reactivity'
+import { getPlayListAll, getAlbums } from '@/api/songList.js'
+import { reactive, ref, toRefs } from 'vue'
 import { getAuthors } from '@/utils'
-import { nextTick, onActivated, onMounted, onUnmounted } from '@vue/runtime-core'
-import { ImagePreview } from 'vant'
+import { nextTick, onActivated, onMounted, onUnmounted, watch } from '@vue/runtime-core'
+import { ImagePreview, Toast } from 'vant'
 import { useStore } from 'vuex'
 export default {
   name: 'Listen',
@@ -71,22 +72,63 @@ export default {
     id: {
       type: [Number, String],
       default: ''
+    },
+    listid: {
+      type: [Number, String],
+      default: 0
+    },
+    isal: {
+      type: [Number, String],
+      default: 0
     }
   },
   setup(props) {
     const router = useRouter()
     const store = useStore()
-    const { id } = toRefs(props)
+    const { id, listid, isal } = toRefs(props)
     let info = reactive({})
     let current_id = ref(id.value)
+    let current_listid = ref(listid.value)
     let lyr = reactive({})
     let keyArr = reactive([])
     let url = ref('')
     let audio = null
-    let likeList = reactive([])
-    let like = ref(false)
+    let likeList = reactive([]) // 喜欢的列表歌曲
+    let like = ref(false) // 是否喜欢
+    let playList = reactive([]) // 播放列表
+    let current_index = ref(-1) // 当前播放歌曲在列表中的位置
+
+    const getPlayList = () => {
+      if (+isal.value) {
+        getAlbums({ id: current_listid.value }).then((res) => {
+          // console.log(res, 'getAlbums')
+          if (res.code === 200) {
+            let ids = res.songs.map((item) => item.id)
+            playList.push(...ids)
+            current_index.value = playList.findIndex((item) => item === +current_id.value)
+            console.log(current_index.value, 'current_index')
+          }
+        })
+      } else {
+        getPlayListAll({ id: current_listid.value }).then((res) => {
+          // console.log(res, 'getPlayListAll')
+          if (res.code === 200) {
+            let ids = res.songs.map((item) => item.id)
+            playList.push(...ids)
+            current_index.value = playList.findIndex((item) => item === +current_id.value)
+            console.log(current_index.value, 'current_index')
+          }
+        })
+      }
+    }
+    // getPlayList()
 
     const init = () => {
+      for (let key in lyr) {
+        delete lyr[key]
+      }
+      keyArr.length = 0
+      likeList.length = 0
       getLikeList({ uid: store.getters.userid }).then((res) => {
         // console.log(res, 'store')
         if (res.code === 200) {
@@ -98,9 +140,8 @@ export default {
           }
         }
       })
-
       getMusicDetail({ ids: current_id.value }).then((res) => {
-        console.log(res, 'getMusicDetail')
+        // console.log(res, 'getMusicDetail')
         if (res.code === 200) {
           Object.assign(info, res.songs[0])
         }
@@ -139,12 +180,18 @@ export default {
       getMusicUrl({ id: current_id.value }).then((res) => {
         // console.log(res, 'getMusicUrl')
         if (res.code === 200) {
+          if (!res.data[0].url) {
+            Toast.fail('找不到该资源')
+            play_next()
+            return
+          }
           url.value = res.data[0].url
           audio.src = url.value
+          pause.value = false
         }
       })
     }
-    init()
+    // init()
     let player = null
     let lycWrap = null
     let currentTime = ref(0)
@@ -156,11 +203,13 @@ export default {
         lycWrap = document.querySelector('.lyc-wrap')
         player.addEventListener('timeupdate', __currentTime)
         player.addEventListener('canplay', __durationTime)
+        audio.addEventListener('ended', play_next)
       })
     })
     onUnmounted(() => {
       player.removeEventListener('timeupdate', __currentTime)
       player.removeEventListener('canplay', __durationTime)
+      audio.removeEventListener('ended', play_next)
       console.log('被摧毁了')
     })
     const __currentTime = () => {
@@ -176,17 +225,32 @@ export default {
       return item
     }
 
+    watch(
+      id,
+      () => {
+        if (current_id.value === +id.value) return
+        if (!listid.value) {
+          playList.length = 0
+          playList.push(...JSON.parse(localStorage.getItem('tempids')))
+        }
+        current_id.value = id.value
+        current_index.value = playList.findIndex((item) => item === +current_id.value)
+        init()
+      },
+      { deep: true, immediate: true }
+    )
+    watch(
+      listid,
+      () => {
+        if (!listid.value) return
+        playList.length = 0
+        current_listid.value = listid.value
+        getPlayList()
+      },
+      { deep: true, immediate: true }
+    )
     onActivated(() => {
-      // console.log(id.value, 'id')
-      if (current_id.value === id.value) {
-        return
-      }
-      current_id.value = id.value
-      for (let key in lyr) {
-        delete lyr[key]
-      }
-      keyArr.length = 0
-      init()
+      // console.log(listid.value, 'id')
     })
 
     const follow = (key) => {
@@ -208,6 +272,85 @@ export default {
       el.click()
       document.body.removeChild(el)
     }
+
+    let play_type = ref(0)
+    const triggle = () => {
+      play_type.value += 1
+      if (play_type.value > 2) {
+        play_type.value = 0
+      }
+      switch (play_type.value) {
+        case 0: // 列表循环
+          audio.loop = false
+          Toast('列表循环')
+          break
+        case 1: // 随机播放
+          audio.loop = false
+          Toast('随机播放')
+          break
+        case 2: // 单曲循环
+          audio.loop = true
+          Toast('单曲循环')
+          break
+      }
+    }
+    let next_id = ref(-1)
+    let previous_id = reactive([])
+
+    const play_previous = () => {
+      if (play_type.value === 2) {
+        play_next()
+        return
+      }
+      if (previous_id.length) {
+        current_id.value = previous_id.pop()
+        current_index.value = playList.findIndex((item) => item === current_id.value)
+      } else {
+        current_index.value - 1 < 0 ? (current_id.value = playList[playList.length - 1]) : (current_id.value = playList[current_index.value])
+        current_index.value - 1 < 0 ? (current_index.value = playList.length - 1) : current_index.value--
+      }
+      pause.value = true
+      init()
+    }
+
+    const getNext = () => {
+      if (play_type.value === 1) {
+        // 随机播放
+        next_id.value = playList[Math.floor(Math.random() * playList.length)]
+        current_index.value = playList.findIndex((item) => item === next_id.value)
+      } else if (play_type.value === 0) {
+        // 列表循环
+        current_index.value + 1 >= playList.length ? (next_id.value = playList[0]) : (next_id.value = playList[current_index.value + 1])
+        current_index.value + 1 >= playList.length ? (current_index.value = 0) : current_index.value++
+      } else {
+        next_id.value = current_id.value
+      }
+    }
+
+    const play_next = () => {
+      getNext()
+      if (current_id.value !== previous_id[0]) {
+        previous_id.push(current_id.value)
+      }
+
+      current_id.value = next_id.value
+      pause.value = true
+      init()
+    }
+
+    let pause = ref(false) // 播放与暂停
+    watch(
+      pause,
+      () => {
+        nextTick(() => {
+          if (audio !== null) {
+            pause.value ? audio.pause() : audio.play()
+          }
+        })
+      },
+      { immediate: true, deep: true }
+    )
+
     return {
       router,
       info,
@@ -221,7 +364,12 @@ export default {
       scrollLyc,
       ImagePreview,
       follow,
-      download
+      download,
+      play_type,
+      pause,
+      triggle,
+      play_next,
+      play_previous
     }
   }
 }

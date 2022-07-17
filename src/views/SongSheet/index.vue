@@ -25,9 +25,9 @@
           <div>
             <div class="author flex flex-acenter" style="width: 10em">
               <div class="author-logo flex flex-acenter" v-if="!al">
-                <van-image :src="playList.creator.avatarUrl || './static/img/loadingErroe.png'" width="6vw" height="6vw" class="marginRight10" round fit="fill" />
+                <van-image :src="(playList.creator && playList.creator.avatarUrl) || './static/img/loadingErroe.png'" width="6vw" height="6vw" class="marginRight10" round fit="fill" />
               </div>
-              <div class="author-name van-ellipsis marginRight10" @click="router.push({ name: 'userinfo', params: { id: userId } })">{{ playList.creator.nickname || (songList[0] && getAuthors(songList[0].ar)) }}</div>
+              <div class="author-name van-ellipsis marginRight10" @click="router.push({ name: 'userinfo', params: { id: userId } })">{{ (playList.creator && playList.creator.nickname) || (songList[0] && getAuthors(songList[0].ar)) }}</div>
               <van-icon name="arrow" v-if="followed || userId === +store.getters.userid || al" />
               <van-icon v-else class-prefix="net" name="plus" class="follow" color="#bbb5b5" @click="toFollow" />
             </div>
@@ -61,7 +61,7 @@
   </div>
   <div v-show="!showInfo" class="marginTop20" style="overflow: hidden">
     <div class="music-item" v-for="(item, index) in songList" :key="item.id">
-      <MusicItem :show-pic="false" :is-top="parseInt(istop)" :id="item.id" :pic-url="item.al.picUrl" :index="index + 1" :album-name="item.name" :author-name="item.ar[0].name" :description="item.al.name" />
+      <MusicItem :list-id="id" :is-album="+al" :show-pic="false" :is-top="parseInt(istop)" :id="item.id" :pic-url="item.al.picUrl" :index="index + 1" :album-name="item.name" :author-name="item.ar[0].name" :description="item.al.name" />
     </div>
   </div>
   <Info @close="showInfo = false" :tabs="playList.tags" :show="showInfo" :url="playList.coverImgUrl || playList.picUrl" :descript="playList.description" :nickname="playList.name" :color-arr="arr" />
@@ -91,7 +91,7 @@ export default {
     },
     al: {
       type: [String, Number],
-      default: ''
+      default: 0
     }
   },
   components: {
@@ -263,6 +263,7 @@ export default {
     })
     return {
       id,
+      al,
       userId,
       songList,
       playList,

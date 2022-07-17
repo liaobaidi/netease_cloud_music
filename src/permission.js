@@ -17,13 +17,21 @@ router.beforeEach((to, from, next) => {
       check({ id: to.params.id }).then((res) => {
         if (res.success) {
           next()
-          NProgress.done()
         } else {
           Toast.fail(res.message)
           next({ name: from.name, params: from.params })
-          NProgress.done()
         }
+        NProgress.done()
       })
+    } else if (to.name === 'search') {
+      if (from.name === 'find' || from.name === 'mine') {
+        to.query.show = 1
+        next()
+      } else {
+        to.query.show = 0
+        next()
+      }
+      NProgress.done()
     } else {
       next()
       NProgress.done()

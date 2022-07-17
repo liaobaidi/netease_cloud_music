@@ -75,8 +75,10 @@ export default {
 .main {
   .main-header {
     height: 34vh;
-    background: url("@/assets/img/bg.jpg") no-repeat center center;
-    background-size: cover;
+    background-image: url("@/assets/img/bg.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 100% 100%;
     border-radius: 60vw / 0 0 3vw 3vw;
     .date {
       left: 6vw;

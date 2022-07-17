@@ -123,7 +123,7 @@
                   </template>
                   <template #main>
                     <div class="flex flex-col">
-                      <MusicItem v-for="(it, i) in topList.info[index]" :key="it.id" :id="it.id" :index="i + 1" :pic-url="it.al.picUrl" :album-name="it.name" :author-name="it.ar[0].name" :description="it.al.name" class="musiclist" />
+                      <MusicItem v-for="(it, i) in topList.info[index]" :key="it.id" :list-id="topList_id[i]" :id="it.id" :index="i + 1" :pic-url="it.al.picUrl" :album-name="it.name" :author-name="it.ar[0].name" :description="it.al.name" class="musiclist" />
                     </div>
                   </template>
                 </CartItem>
@@ -299,8 +299,12 @@ export default {
         }
       }
     }
+    let topList_id = reactive([])
     getTopLists().then((res) => {
+      console.log(res, 'getTopLists')
       if (res.code === 200) {
+        let ids = res.list.slice(0, 5).map(item => item.id)
+        topList_id.push(...ids)
         topList.list.push(...res.list.slice(0, 5))
       }
       topList.list.forEach((item, index) => {
@@ -342,6 +346,7 @@ export default {
       albumList,
       albumTotal,
       topList,
+      topList_id,
       changeSpecialList,
       changeDirection,
       toLink,

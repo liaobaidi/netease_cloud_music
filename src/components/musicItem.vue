@@ -1,5 +1,5 @@
 <template>
-  <div class="music-item flex flex-acenter" @click="router.push({ name: 'listen', params: { id } })">
+  <div class="music-item flex flex-acenter" @click="router.push({ name: 'listen', params: { id, listid: listId, isal: isAlbum } })">
     <div v-if="showPic" class="pic marginRight10 flex flex-center flex-acenter">
       <van-image :src="picUrl" fit="fill" error-icon="./static/img/loadingErroe.png" />
     </div>
@@ -51,17 +51,21 @@ export default {
       type: [String, Number],
       default: ''
     },
+    listId: {
+      type: [String, Number],
+      default: ''
+    },
     isTop: {
       type: [Number, String],
       default: 0
     },
     isAlbum: {
-      type: Boolean,
-      default: false
+      type: [Number, String],
+      default: 0
     }
   },
   setup(props) {
-    const { picUrl, albumName, authorName, description, index, showPic, id, isTop } = toRefs(props)
+    const { picUrl, albumName, authorName, description, index, showPic, id, isTop, listId, isAlbum } = toRefs(props)
     const router = useRouter()
     return {
       router,
@@ -72,7 +76,9 @@ export default {
       index,
       showPic,
       isTop,
-      id
+      id,
+      listId,
+      isAlbum
     }
   }
 }

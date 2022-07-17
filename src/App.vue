@@ -5,7 +5,7 @@
   <router-view v-slot="{ Component }">
     <transition>
       <div id="app">
-        <keep-alive include="Listen">
+        <keep-alive :include="['Listen', 'Search']">
           <component :is="Component" />
         </keep-alive>
       </div>
