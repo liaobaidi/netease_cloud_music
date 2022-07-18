@@ -58,7 +58,7 @@
         </div>
       </div>
       <div v-if="item === '专辑'">
-        <div v-for="album in resultList[item]" :key="album.id" class="music-item flex flex-acenter" @click="router.push({ name: 'songsheet', params: { id: album.id, al: 1 } })">
+        <div v-for="album in resultList[item]" :key="album.id" class="music-item flex flex-acenter" @click="router.push({ name: 'songsheet', params: { id: album.id }, query: { al: 1 } })">
           <div class="cover marginRight10">
             <van-image :src="album.picUrl" radius="1vh" />
           </div>

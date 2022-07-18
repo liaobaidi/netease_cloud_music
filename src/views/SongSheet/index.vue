@@ -68,8 +68,8 @@
 </template>
 
 <script>
-import { ref, onMounted, reactive, toRefs, nextTick, defineAsyncComponent } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, reactive, toRefs, nextTick, defineAsyncComponent, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { followUser } from '@/api/user.js'
 import { getPlayListAll, getPlayListDetail, getPlayListDynamic, triggleLike, getAlbums, getAlbumDetail, subAlbum } from '@/api/songList.js'
@@ -88,10 +88,6 @@ export default {
     istop: {
       type: [Number, String],
       default: 0
-    },
-    al: {
-      type: [String, Number],
-      default: 0
     }
   },
   components: {
@@ -100,8 +96,9 @@ export default {
   },
   setup(props, context) {
     const router = useRouter()
+    const route = useRoute()
     const store = useStore()
-    const { id, istop, al } = toRefs(props)
+    const { id, istop } = toRefs(props)
     let songList = reactive([]) // 歌单
     let playList = reactive({
       creator: reactive({})
@@ -114,10 +111,17 @@ export default {
     let followed = ref(false) // 是否关注歌手
     let userId = ref(-1)
     let showInfo = ref(false)
-
+    let al = ref(0)
     window.onscroll = () => {
       scrolly.value = document.documentElement.scrollTop
     }
+    watch(
+      route,
+      () => {
+        al.value = +route.query.al
+      },
+      { immediate: true, deep: true }
+    )
     if (+al.value) {
       getAlbums({ id: id.value }).then((res) => {
         // console.log(res, 'getalbums')

@@ -50,11 +50,40 @@
           <van-icon class-prefix="net" name="49xiayishou" size="4vh" @click="play_next" />
         </div>
         <div>
-          <van-icon class-prefix="net" name="24gf-playlist" size="3vh" />
+          <van-icon class-prefix="net" name="gengduo-shuxiang" size="4vh" @click="showMore = true" />
         </div>
       </div>
     </div>
   </div>
+  <van-action-sheet v-model:show="showMore">
+    <template #description>
+      <div class="description van-ellipsis">{{ info.name }}</div>
+    </template>
+    <template #default>
+      <div class="cart flex flex-center flex-acenter">
+        <div class="inner-cart">
+          <div class="flex flex-acenter flex-bet">
+            <div><van-icon name="contact" size="3vh" /></div>
+            <div class="cart-info flex flex-acenter van-ellipsis">
+              <span>歌手: {{ info.ar && getAuthors(info.ar) }}</span>
+            </div>
+          </div>
+          <div class="flex flex-acenter flex-bet">
+            <van-icon class-prefix="net" name="friend" size="3vh" />
+            <div class="cart-info flex flex-acenter van-ellipsis">
+              <span>创作者: {{ info.originSongSimpleData ? getAuthors(info.originSongSimpleData.artists) : info.ar && getAuthors(info.ar) }}</span>
+            </div>
+          </div>
+          <div class="flex flex-acenter flex-bet">
+            <van-icon class-prefix="net" name="zhuanji" size="3vh" />
+            <div class="cart-info flex flex-acenter van-ellipsis">
+              <span>专辑: {{ info.al && info.al.name }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+  </van-action-sheet>
 </template>
 
 <script>
@@ -97,6 +126,7 @@ export default {
     let like = ref(false) // 是否喜欢
     let playList = reactive([]) // 播放列表
     let current_index = ref(-1) // 当前播放歌曲在列表中的位置
+    let showMore = ref(false)
 
     const getPlayList = () => {
       if (+isal.value) {
@@ -369,7 +399,8 @@ export default {
       pause,
       triggle,
       play_next,
-      play_previous
+      play_previous,
+      showMore
     }
   }
 }
@@ -458,6 +489,31 @@ export default {
   100% {
     transform-origin: center;
     transform: rotate(360deg);
+  }
+}
+.description {
+  overflow: hidden;
+  height: 6vh;
+  line-height: 6vh;
+  color: #fff;
+  font-size: 3.6vw;
+  background-color: var(--theme-color);
+}
+.cart {
+  height: 30vh;
+  background-color: var(--theme-color);
+  .inner-cart {
+    width: 80%;
+    height: 24vh;
+    padding: 1vh 1vh 0 2vh;
+    background-color: var(--sub-theme-color);
+    border-radius: 2vh;
+    .cart-info {
+      width: 90%;
+      height: 7vh;
+      border-bottom: 1px solid rgb(74, 74, 74);
+      font-size: 2vh;
+    }
   }
 }
 </style>
