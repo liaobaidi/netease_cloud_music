@@ -39,6 +39,8 @@ export default {
       // console.log(res, 'getRecommedSong')
       if (res.code === 200) {
         list.push(...res.data.dailySongs)
+        let tempids = res.data.dailySongs.map(item => item.id)
+        localStorage.setItem('tempids', JSON.stringify(tempids))
       }
     })
 
@@ -74,6 +76,7 @@ export default {
 }
 .main {
   .main-header {
+    width: 100vw;
     height: 34vh;
     background-image: url("@/assets/img/bg.jpg");
     background-repeat: no-repeat;

@@ -1,5 +1,6 @@
 <template>
-  <div v-if="show" class="info-container relative" style="overflow: hidden; padding: 0 8vw" :style="colorArr.length && 'background: -webkit-linear-gradient(135deg, ' + colorArr[0].rgba + ', ' + colorArr[colorArr.length - 1].rgba + ')'">
+  <div class="bg absolute" :style="{ backgroundImage: `url(${url})` }" />
+  <div v-if="show" class="info-container relative" style="overflow: hidden; padding: 0 8vw">
     <div class="cross absolute">
       <van-icon name="cross" color="#fff" size="20" @click="close" />
     </div>
@@ -107,7 +108,8 @@ export default {
     margin-top: 2vh;
     font-size: 3.4vw;
     .tab_item {
-      width: 10vw;
+      // width: 10vw;
+      padding: 0 2vw;
       height: 5vw;
       line-height: 5vw;
       border-radius: 2.5vw;
@@ -119,5 +121,14 @@ export default {
     margin-top: 2vh;
     font-size: 1.8667vw;
   }
+}
+.bg {
+  width: 100vw;
+  min-height: 100vh;
+  background-size: 100% 100%;
+  background-position: center center;
+  background-repeat: no-repeat;
+  -webkit-filter: blur(120px);
+  filter: blur(120px);
 }
 </style>

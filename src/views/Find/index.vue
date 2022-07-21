@@ -10,7 +10,8 @@
           </div>
         </template>
         <template #right>
-          <span class="net net-ziyuan icon-size" />
+          <!-- <span class="net net-ziyuan icon-size" /> -->
+          <Playing />
         </template>
       </Header>
     </header>
@@ -140,6 +141,7 @@
 <script>
 import { nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import Header from '@/components/Header.vue'
+import Playing from '@/components/Playing.vue'
 import CartItem from '@/components/cartItem.vue'
 import MusicCart from '@/components/musicCart.vue'
 import MusicItem from '@/components/musicItem.vue'
@@ -154,7 +156,8 @@ export default {
     Header,
     CartItem,
     MusicCart,
-    MusicItem
+    MusicItem,
+    Playing
   },
   setup() {
     let searchKey = ref('')
@@ -301,9 +304,9 @@ export default {
     }
     let topList_id = reactive([])
     getTopLists().then((res) => {
-      console.log(res, 'getTopLists')
+      // console.log(res, 'getTopLists')
       if (res.code === 200) {
-        let ids = res.list.slice(0, 5).map(item => item.id)
+        let ids = res.list.slice(0, 5).map((item) => item.id)
         topList_id.push(...ids)
         topList.list.push(...res.list.slice(0, 5))
       }

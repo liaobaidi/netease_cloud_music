@@ -12,7 +12,7 @@
           </div>
           <div class="nickname marginLeft10">{{ item.nickname }}</div>
         </div>
-        <div v-if="id === store.getters.userid" class="icon">
+        <div v-if="show" class="icon">
           <van-icon name="ellipsis" @click.stop="openSubscribe(item.followed, item.userId)" />
         </div>
       </div>
@@ -25,7 +25,7 @@
           </div>
           <div class="nickname marginLeft10">{{ item.nickname }}</div>
         </div>
-        <div v-if="id === store.getters.userid" class="icon">
+        <div v-if="show" class="icon">
           <van-icon name="ellipsis" @click.stop="openSubscribe(item.followed, item.userId)" />
         </div>
       </div>
@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { reactive, ref } from 'vue'
+import { reactive, ref, toRefs, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { getFollows, getFolloweds, followUser } from '@/api/user.js'
@@ -64,19 +64,19 @@ export default {
     const router = useRouter()
     const routes = useRoute()
     const store = useStore()
-    const { id } = props
+    const { id } = toRefs(props)
     const { subscribe } = routes.query
     let follows = reactive([])
     let followeds = reactive([])
     if (+subscribe) {
-      getFollows({ uid: id }).then((res) => {
+      getFollows({ uid: id.value }).then((res) => {
         // console.log(res, ' getFollows')
         if (res.code === 200) {
           follows.push(...res.follow)
         }
       })
     } else {
-      getFolloweds({ uid: id }).then((res) => {
+      getFolloweds({ uid: id.value }).then((res) => {
         // console.log(res, 'getFolloweds')
         if (res.code === 200) {
           followeds.push(...res.followeds)
@@ -124,9 +124,20 @@ export default {
       }
     }
 
+    let show = ref(false)
+    watch(
+      id,
+      () => {
+        let userId = store.getters.userid || localStorage.getItem('userId')
+        show.value = +userId === +id.value
+      },
+      { immediate: true, deep: true }
+    )
+
     return {
       router,
       store,
+      show,
       subscribe,
       follows,
       followeds,

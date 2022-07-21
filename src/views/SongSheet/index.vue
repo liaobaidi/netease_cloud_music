@@ -1,17 +1,18 @@
 <template>
   <div v-show="!showInfo" style="overflow: hidden">
-    <header class="flex flex-bet flex-acenter header fixed transition" :style="scrolly >= 150 ? 'background: -webkit-linear-gradient(135deg, ' + arr[0].rgba + ', ' + arr[arr.length - 1].rgba + ')' : ''">
+    <header class="flex flex-bet flex-acenter header fixed transition" :style="scrolly >= 150 ? { backgroundColor: '#151515' } : ''">
       <div class="flex">
         <van-icon class="marginRight20" class-prefix="net" name="xiangzuo-jiantou" size="24" @click="router.go(-1)" />
         <span>{{ al ? '专辑' : '歌单' }}</span>
       </div>
       <div class="flex">
         <van-icon class="marginRight20" class-prefix="net" name="sousuo" />
-        <van-icon name="ellipsis" style="transform: rotate(90deg)" />
+        <!-- <van-icon name="ellipsis" style="transform: rotate(90deg)" /> -->
+        <Playing color="#d03333" />
       </div>
     </header>
     <div class="top-part flex relative">
-      <div class="absolute top-part-bg" :style="arr.length && 'background: -webkit-linear-gradient(135deg, ' + arr[0].rgba + ', ' + arr[arr.length - 1].rgba + ')'" />
+      <div class="absolute top-part-bg" :style="{ backgroundImage: `url(${playList.coverImgUrl || playList.picUrl})` }" />
       <div class="flex" style="height: calc(260 / 1667 * 100vh)">
         <div class="logo marginRight20 relative" @click="showInfo = true">
           <van-image id="logo" :src="playList.coverImgUrl || playList.picUrl || './static/img/logo.png'" width=" calc(260 / 1667 * 100vh)" height=" calc(260 / 1667 * 100vh)" radius="3vw" fit="fill" />
@@ -75,6 +76,7 @@ import { followUser } from '@/api/user.js'
 import { getPlayListAll, getPlayListDetail, getPlayListDynamic, triggleLike, getAlbums, getAlbumDetail, subAlbum } from '@/api/songList.js'
 import countUnit from '@/utils/countUnit.js'
 import MusicItem from '@/components/musicItem.vue'
+import Playing from '@/components/Playing.vue'
 import { getAuthors } from '@/utils'
 import { Toast } from 'vant'
 const Info = defineAsyncComponent(() => import('./component/Info.vue'))
@@ -92,7 +94,8 @@ export default {
   },
   components: {
     MusicItem,
-    Info
+    Info,
+    Playing
   },
   setup(props, context) {
     const router = useRouter()
@@ -225,46 +228,6 @@ export default {
         }
       })
     }
-
-    onMounted(() => {
-      // 获取背景蒙版主要颜色
-      nextTick(() => {
-        const logo = document.getElementById('logo').children[0]
-        logo.crossOrigin = ''
-        logo.onload = function () {
-          const w = this.width
-          const h = this.height
-          // 创建画布
-          const canvas = document.createElement('canvas')
-          canvas.width = w
-          canvas.height = h
-          // 绘制图片在画布上
-          const context = canvas.getContext('2d')
-          context.drawImage(this, 0, 0)
-          let pxArr = context.getImageData(0, 0, w, h).data
-          pxArr = Array.from(pxArr)
-          const colorList = {}
-          let i = 0
-          while (i < pxArr.length) {
-            const r = pxArr[i]
-            const g = pxArr[i + 1]
-            const b = pxArr[i + 2]
-            const a = pxArr[i + 3]
-            i = i + 4 // 最后 +4 比每次 i++ 快 10ms 左右性能
-            const key = [r, g, b, a].join(',')
-            key in colorList ? ++colorList[key] : (colorList[key] = 1)
-          }
-
-          for (let key in colorList) {
-            arr.push({
-              rgba: `rgba(${key})`,
-              num: colorList[key]
-            })
-          }
-          arr = arr.sort((a, b) => b.num - a.num)
-        }
-      })
-    })
     return {
       id,
       al,
@@ -311,6 +274,11 @@ export default {
     width: 200%;
     height: 100%;
     border-radius: 0 0 50% 50% / 0 0 30% 30%;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center center;
+    -webkit-filter: blur(80px);
+    filter: blur(80px);
   }
   .logo {
     flex: 1;
@@ -324,7 +292,7 @@ export default {
       top: 1.3333vw;
       right: 1.3333vw;
       z-index: 1;
-      font-size: getvh(12);
+      font-size: 2.4vw;
       padding: 0 2vw;
     }
   }

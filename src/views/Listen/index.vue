@@ -263,6 +263,7 @@ export default {
           playList.length = 0
           playList.push(...JSON.parse(localStorage.getItem('tempids')))
         }
+        store.commit('app/setCurrentId', +id.value)
         current_id.value = id.value
         current_index.value = playList.findIndex((item) => item === +current_id.value)
         init()

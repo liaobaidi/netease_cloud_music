@@ -7,5 +7,8 @@ export default {
   },
   isal() {
     return app.state.isal
+  },
+  current_id() {
+    return app.state.current_id
   }
 }
