@@ -33,9 +33,6 @@
           <van-password-input :value="code" :length="4" :focused="showKeyboard" @focus="showKeyboard = true" :mask="false" :gutter="10" />
           <van-number-keyboard v-model="code" :show="showKeyboard" @blur="showKeyboard = false" maxlength="4" />
         </div>
-        <div class="text-center marginTop20">
-          <div @click="cantGetCode">手机号已更换，无法接收短信？<van-icon name="arrow" /></div>
-        </div>
       </div>
     </transition>
   </div>
@@ -62,8 +59,8 @@ export default {
     ])
     const code = ref('')
     const showKeyboard = ref(false)
-    const downCount = ref(0)
-    const downTimer = ref(null)
+    let downCount = ref(0)
+    let downTimer = null
     watch(code, (newval) => {
       console.log(newval)
       if (newval.length === 4) {
@@ -92,10 +89,11 @@ export default {
         if (+res.code === 200) {
           Toast.success('发送成功')
           send.value = false
-          downTimer.value = setInterval(() => {
+          downTimer = setInterval(() => {
             downCount.value--
-            if (downCount.value === 0) {
-              clearInterval(downTimer.value)
+            if (downCount.value <= 0) {
+              clearInterval(downTimer)
+              downCount.value = 0
             }
           }, 1000)
         } else {
@@ -108,7 +106,7 @@ export default {
     }
 
     onBeforeUnmount(() => {
-      clearInterval(downTimer.value)
+      clearInterval(downTimer)
     })
     return {
       tel,

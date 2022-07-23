@@ -17,8 +17,8 @@
       <div class="threedata flex flex-acenter flex-ard">
         <div @click="router.push({ name: 'subscribe', params: { id }, query: { subscribe: 1 } })">{{ countUnit(userProfile.follows) }} 关注</div>
         <div @click="router.push({ name: 'subscribe', params: { id }, query: { subscribe: 0 } })">{{ countUnit(userProfile.followeds) }} 粉丝</div>
-        <div v-if="level" @click="id === store.getters.userid && router.push({ name: 'level', query: { url: userProfile.avatarUrl } })">Lv. {{ level }}</div>
-        <div v-else @click="id === store.getters.userid && router.push({ name: 'level', query: { url: userProfile.avatarUrl } })">村龄 {{ createDays }} 天</div>
+        <div v-if="level" @click="permission && router.push({ name: 'level', query: { url: userProfile.avatarUrl } })">Lv. {{ level }}</div>
+        <div v-else @click="permission && router.push({ name: 'level', query: { url: userProfile.avatarUrl } })">村龄 {{ createDays }} 天</div>
       </div>
       <div class="tags flex flex-center flex-acenter">
         <span class="tags-item flex flex-acenter marginRight10">
@@ -72,7 +72,7 @@
 </template>
 
 <script>
-import { reactive, toRefs, ref, onMounted, onUnmounted } from 'vue'
+import { reactive, toRefs, ref, onMounted, onUnmounted, watch } from 'vue'
 import { getUserInfo, getUserPlaylist } from '@/api/user.js'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
@@ -89,14 +89,27 @@ export default {
     }
   },
   setup(props, context) {
-    const { id } = props
+    const { id } = toRefs(props)
     const router = useRouter()
     const store = useStore()
     let userProfile = reactive({})
     let level = ref(0)
     let createDays = ref(0)
+    let permission = ref(false)
 
-    getUserInfo({ uid: id }).then((res) => {
+    watch(
+      id,
+      () => {
+        let userId = store.getters.userid
+        if (!userId) {
+          userId = +JSON.parse(localStorage.getItem('userId'))
+        }
+        permission.value = userId === +id.value
+      },
+      { immediate: true, deep: true }
+    )
+
+    getUserInfo({ uid: id.value }).then((res) => {
       // console.log(res, 'getUserInfo')
       if (res.code === 200) {
         Object.assign(userProfile, res.profile)
@@ -108,11 +121,11 @@ export default {
     let subscribedlist = reactive([]) // 收藏的歌单
     let userplaylist = reactive([]) // 用户创建的歌单
     let subscribedCount = ref(0) // 被收藏次数
-    getUserPlaylist({ uid: id }).then((res) => {
+    getUserPlaylist({ uid: id.value }).then((res) => {
       // console.log(res, 'getUserPlaylist')
       if (res.code === 200) {
         res.playlist.forEach((item) => {
-          if (item.userId !== +id) {
+          if (item.userId !== +id.value) {
             subscribedlist.push(item)
           } else {
             userplaylist.push(item)
@@ -159,6 +172,7 @@ export default {
       getCity,
       getBirth,
       dayjs,
+      permission,
       preview
     }
   }

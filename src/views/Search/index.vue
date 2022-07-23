@@ -7,6 +7,16 @@
       <input v-model="searchInfo" v-focus class="searchInp van-ellipsis" type="text" :placeholder="query.keyWord || keyword" @keyup.enter="toSearch(searchInfo)" />
     </template>
   </van-nav-bar>
+  <div v-if="!showResult && historyArr.length" class="history marginTop20 flex flex-acenter flex-bet padding4vw">
+    <div>历史:</div>
+    <div class="wrap" id="wrap">
+      <div class="content">
+        <div class="item marginRight10" v-for="item in historyArr" :key="item.id" @click="toSearch(item.word)">{{ item.word }}</div>
+      </div>
+    </div>
+    <van-icon class-prefix="net" name="icon" @click="clearHis" />
+  </div>
+
   <van-tabs v-if="!showResult" v-model:active="activeName" swipeable line-height="0" background="#151515" class="marginTop20">
     <van-tab title="热搜榜" name="热搜榜">
       <div class="tab_content flex flex-col flex-bet">
@@ -91,7 +101,7 @@
 </template>
 
 <script>
-import { onActivated, reactive, ref, watch } from 'vue'
+import { nextTick, onActivated, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getHotSearchList, getHotSearchListDetail, getTopicList, getSearchDefault, search } from '@/api/search.js'
 import { followUser } from '@/api/user.js'
@@ -100,6 +110,7 @@ import { getAuthors } from '@/utils'
 import dayjs from 'dayjs'
 import MusicItem from '@/components/musicItem.vue'
 import { Toast } from 'vant'
+import BScroll from '@better-scroll/core'
 
 export default {
   name: 'Search',
@@ -134,7 +145,36 @@ export default {
       { deep: true, immediate: true }
     )
 
-    onActivated(() => {
+    let bs = null
+    let wrap = null
+    const init = () => {
+      wrap = document.getElementById('wrap')
+      bs = new BScroll(wrap, {
+        scrollX: true,
+        scrollY: false,
+        probeType: 3,
+        click: true
+      })
+    }
+
+    const clearHis = () => {
+      localStorage.setItem('history', '[]')
+      historyArr.length = 0
+      localStorage.getItem('history') && historyArr.push(...JSON.parse(localStorage.getItem('history')))
+    }
+
+    onMounted(() => {
+      nextTick(() => {
+        init()
+      })
+    })
+
+    onActivated(async () => {
+      historyArr.length = 0
+      localStorage.getItem('history') && historyArr.push(...JSON.parse(localStorage.getItem('history')))
+      nextTick(() => {
+        init()
+      })
       Object.assign(query, route.query)
       // console.log(query.show, 'query.show')
       if (+query.show) {
@@ -142,6 +182,7 @@ export default {
         searchInfo.value = ''
       } else {
         showResult.value = true
+        bs.destroy()
       }
     })
 
@@ -212,12 +253,19 @@ export default {
       toSearch(searchInfo.value)
     })
 
+    let historyArr = reactive([])
+    let hisId = 0
     const toSearch = (key) => {
       searchInfo.value = key
       if (!searchInfo.value) {
         searchInfo.value = query.keyWord || keyword.value
       }
-      search({ keywords: searchInfo.value, limit: limit.value, offset: offset.value, type: type.value }).then((res) => {
+      // 存入历史搜索信息
+      if (!historyArr.length || searchInfo.value.trim() !== historyArr[0].word) {
+        historyArr.unshift({ id: hisId++, word: searchInfo.value })
+        localStorage.setItem('history', JSON.stringify(historyArr))
+      }
+      search({ keywords: searchInfo.value.trim(), limit: limit.value, offset: offset.value, type: type.value }).then((res) => {
         console.log(res)
         if (res.code === 200) {
           switch (type.value) {
@@ -250,7 +298,10 @@ export default {
               resultList['用户'].push(...res.result.userprofiles)
               break
           }
+          historyArr.length = 0
+          historyArr.push(...JSON.parse(localStorage.getItem('history')))
           showResult.value = true
+          bs.destroy()
         }
       })
     }
@@ -291,7 +342,9 @@ export default {
       toSearch,
       getAuthors,
       dayjs,
-      triggleFollow
+      triggleFollow,
+      historyArr,
+      clearHis
     }
   }
 }
@@ -366,5 +419,28 @@ export default {
   height: 86vh;
   width: 100vw;
   font-size: 6vw;
+}
+.history {
+  height: 3vh;
+  font-size: 4.2667vw;
+  .wrap {
+    overflow: hidden;
+    width: 70vw;
+    height: 3vh;
+    white-space: nowrap;
+    .content {
+      height: 3vh;
+      display: inline-block;
+      .item {
+        display: inline-block;
+        height: 3vh;
+        line-height: 3vh;
+        padding: 0 2vw;
+        border-radius: 1.5vh;
+        font-size: 3.4667vw;
+        background-color: var(--sub-theme-color);
+      }
+    }
+  }
 }
 </style>
