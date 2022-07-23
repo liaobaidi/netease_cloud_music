@@ -387,10 +387,10 @@ export default {
 }
 .music-item {
   padding-left: 3vw;
-  height: 8vh;
+  height: 16vw;
   .cover {
-    width: 7vh;
-    height: 7vh;
+    width: 14vw;
+    height: 14vw;
   }
   .main {
     height: 100%;
@@ -405,14 +405,14 @@ export default {
   }
   .sub {
     width: 14vw;
-    height: 4vh;
-    border-radius: 2vh;
+    height: 7vw;
+    border-radius: 3.5vw;
     color: red;
     border: 1px solid currentColor;
     right: 4vw;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 1vh;
+    font-size: 3.2vw;
   }
 }
 .nodata {
@@ -421,22 +421,22 @@ export default {
   font-size: 6vw;
 }
 .history {
-  height: 3vh;
+  height: 6vw;
   font-size: 4.2667vw;
   .wrap {
     overflow: hidden;
     width: 70vw;
-    height: 3vh;
+    height: 6vw;
     white-space: nowrap;
     .content {
-      height: 3vh;
+      height: 6vw;
       display: inline-block;
       .item {
         display: inline-block;
-        height: 3vh;
-        line-height: 3vh;
+        height: 6vw;
+        line-height: 6vw;
         padding: 0 2vw;
-        border-radius: 1.5vh;
+        border-radius: 3vw;
         font-size: 3.4667vw;
         background-color: var(--sub-theme-color);
       }
