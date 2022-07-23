@@ -1,5 +1,5 @@
 <template>
-  <div class="bg absolute" :style="{ backgroundImage: `url(${url})` }" />
+  <div v-if="show" class="bg absolute" :style="{ backgroundImage: `url(${url})` }" />
   <div v-if="show" class="info-container relative" style="overflow: hidden; padding: 0 8vw">
     <div class="cross absolute">
       <van-icon name="cross" color="#fff" size="20" @click="close" />

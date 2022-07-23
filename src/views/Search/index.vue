@@ -7,7 +7,7 @@
       <input v-model="searchInfo" v-focus class="searchInp van-ellipsis" type="text" :placeholder="query.keyWord || keyword" @keyup.enter="toSearch(searchInfo)" />
     </template>
   </van-nav-bar>
-  <div v-if="!showResult && historyArr.length" class="history marginTop20 flex flex-acenter flex-bet padding4vw">
+  <div v-if="!showResult && historyArr.length" class="history flex flex-acenter flex-bet padding4vw">
     <div>历史:</div>
     <div class="wrap" id="wrap">
       <div class="content">
@@ -49,7 +49,7 @@
     </van-tab>
   </van-tabs>
 
-  <van-tabs v-else v-model:active="searchName" swipeable sticky offset-top="7vh" line-height="0" background="#2c2c2c">
+  <van-tabs v-else v-model:active="searchName" swipeable sticky offset-top="6vh" line-height="0" background="#2c2c2c">
     <van-tab v-for="item in tablist" :key="item" :name="item" :title="item">
       <div v-if="item === '单曲'">
         <div v-for="song in resultList[item]" :key="song.id" class="music-item flex flex-acenter">
@@ -423,6 +423,7 @@ export default {
 .history {
   height: 6vw;
   font-size: 4.2667vw;
+  margin-top: 1vh;
   .wrap {
     overflow: hidden;
     width: 70vw;
