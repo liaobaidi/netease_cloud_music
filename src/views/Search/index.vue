@@ -52,30 +52,48 @@
   <van-tabs v-else v-model:active="searchName" swipeable sticky offset-top="6vh" line-height="0" background="#2c2c2c">
     <van-tab v-for="item in tablist" :key="item" :name="item" :title="item">
       <div v-if="item === '单曲'">
-        <div v-for="song in resultList[item]" :key="song.id" class="music-item flex flex-acenter">
-          <MusicItem :id="song.id" :show-pic="false" :album-name="song.name" :author-name="getAuthors(song.ar)" :description="song.al.name" />
+        <div v-if="resultList[item].length">
+          <div v-for="song in resultList[item]" :key="song.id" class="music-item flex flex-acenter">
+            <MusicItem :id="song.id" :show-pic="false" :album-name="song.name" :author-name="getAuthors(song.ar)" :description="song.al.name" />
+          </div>
+        </div>
+        <div v-else class="nodata flex flex-col flex-center flex-acenter">
+          <van-icon class-prefix="net" name="nodata" size="40vw" />
+          <span class="marginTop20">什么都没有找到</span>
         </div>
       </div>
       <div v-if="item === '歌单'">
-        <div v-for="playlist in resultList[item]" :key="playlist.id" class="music-item flex flex-acenter" @click="router.push({ name: 'songsheet', params: { id: playlist.id } })">
-          <div class="cover marginRight10">
-            <van-image :src="playlist.coverImgUrl" radius="1vh" />
+        <div v-if="resultList[item].length">
+          <div v-for="playlist in resultList[item]" :key="playlist.id" class="music-item flex flex-acenter" @click="router.push({ name: 'songsheet', params: { id: playlist.id } })">
+            <div class="cover marginRight10">
+              <van-image :src="playlist.coverImgUrl" radius="1vh" />
+            </div>
+            <div class="main flex flex-col flex-center">
+              <div class="playlist-name van-ellipsis">{{ playlist.name }}</div>
+              <div class="playlist-author van-ellipsis">{{ playlist.trackCount }}首, by {{ playlist.creator.nickname }}, 播放 {{ countUnit(playlist.playCount) }}次</div>
+            </div>
           </div>
-          <div class="main flex flex-col flex-center">
-            <div class="playlist-name van-ellipsis">{{ playlist.name }}</div>
-            <div class="playlist-author van-ellipsis">{{ playlist.trackCount }}首, by {{ playlist.creator.nickname }}, 播放 {{ countUnit(playlist.playCount) }}次</div>
-          </div>
+        </div>
+        <div v-else class="nodata flex flex-col flex-center flex-acenter">
+          <van-icon class-prefix="net" name="nodata" size="40vw" />
+          <span class="marginTop20">什么都没有找到</span>
         </div>
       </div>
       <div v-if="item === '专辑'">
-        <div v-for="album in resultList[item]" :key="album.id" class="music-item flex flex-acenter" @click="router.push({ name: 'songsheet', params: { id: album.id }, query: { al: 1 } })">
-          <div class="cover marginRight10">
-            <van-image :src="album.picUrl" radius="1vh" />
+        <div v-if="resultList[item].length">
+          <div v-for="album in resultList[item]" :key="album.id" class="music-item flex flex-acenter" @click="router.push({ name: 'songsheet', params: { id: album.id }, query: { al: 1 } })">
+            <div class="cover marginRight10">
+              <van-image :src="album.picUrl" radius="1vh" />
+            </div>
+            <div class="main flex flex-col flex-center">
+              <div class="playlist-name van-ellipsis">{{ album.name }}</div>
+              <div class="playlist-author van-ellipsis">{{ getAuthors(album.artists) }} {{ dayjs(album.publishTime).format('YYYY.M.D') }}</div>
+            </div>
           </div>
-          <div class="main flex flex-col flex-center">
-            <div class="playlist-name van-ellipsis">{{ album.name }}</div>
-            <div class="playlist-author van-ellipsis">{{ getAuthors(album.artists) }} {{ dayjs(album.publishTime).format('YYYY.M.D') }}</div>
-          </div>
+        </div>
+        <div v-else class="nodata flex flex-col flex-center flex-acenter">
+          <van-icon class-prefix="net" name="nodata" size="40vw" />
+          <span class="marginTop20">什么都没有找到</span>
         </div>
       </div>
       <div v-if="item === '歌手' || item === '用户'">

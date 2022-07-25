@@ -30,7 +30,7 @@
           <van-icon v-else name="like" size="4vh" color="#d03333" @click="follow(false)" />
         </div>
         <div>
-          <van-icon class-prefix="net" name="xiazai" size="4vh" @click="download" />
+          <van-icon class-prefix="net" name="xiazai" size="4vh" @click="download(info.name + '.mp3')" />
         </div>
       </div>
       <div class="bottom flex flex-bet flex-acenter">
@@ -95,6 +95,7 @@ import { getAuthors } from '@/utils'
 import { nextTick, onActivated, onMounted, onUnmounted, watch } from '@vue/runtime-core'
 import { ImagePreview, Toast } from 'vant'
 import { useStore } from 'vuex'
+import axios from 'axios'
 export default {
   name: 'Listen',
   props: {
@@ -120,7 +121,7 @@ export default {
     let current_listid = ref(listid.value)
     let lyr = reactive({})
     let keyArr = reactive([])
-    let url = ref('')
+    let url = ref('') // 音频播放地址
     let audio = null
     let likeList = reactive([]) // 喜欢的列表歌曲
     let like = ref(false) // 是否喜欢
@@ -216,6 +217,7 @@ export default {
             return
           }
           url.value = res.data[0].url
+
           audio.src = url.value
           pause.value = false
         }
@@ -243,10 +245,10 @@ export default {
       console.log('被摧毁了')
     })
     const __currentTime = () => {
-      currentTime.value = parseInt(player.currentTime)
+      currentTime.value = parseFloat(player.currentTime)
     }
     const __durationTime = () => {
-      durationTime.value = parseInt(player.duration)
+      durationTime.value = parseFloat(player.duration)
     }
     const scrollLyc = (item, key, index) => {
       if (currentTime.value >= key && currentTime.value < key + (keyArr[index + 1] - keyArr[index])) {
@@ -293,15 +295,27 @@ export default {
       }
     }
 
-    const download = (url, fileName = info.name + '.mp3') => {
-      const el = document.createElement('a')
-      el.style.display = 'none'
-      el.setAttribute('target', '_blank')
-      fileName && el.setAttribute('download', fileName)
-      el.href = url.value
-      document.body.appendChild(el)
-      el.click()
-      document.body.removeChild(el)
+    const download = (fileName) => {
+      axios({
+        method: 'get',
+        url: url.value,
+        responseType: 'blob',
+        headers: { 'content-type': 'audio/mpeg' }
+      })
+        .then((res) => {
+          let blob = new Blob([res.data], { type: res.data.type }) // 创建blob 设置blob文件类型 data 设置为后端返回的文件(例如mp3,jpeg) type:这里设置后端返回的类型 为 mp3
+          let downa = document.createElement('a') // 创建A标签
+          let href = window.URL.createObjectURL(blob) // 创建下载的链接
+          downa.href = href // 下载地址
+          downa.download = fileName // 下载文件名
+          document.body.appendChild(downa)
+          downa.click() // 模拟点击A标签
+          document.body.removeChild(downa) // 下载完成移除元素
+          window.URL.revokeObjectURL(href) // 释放blob对象
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
     }
 
     let play_type = ref(0)
