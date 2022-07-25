@@ -3,10 +3,11 @@
     <header class="flex flex-bet flex-acenter header fixed transition" :style="scrolly >= 150 ? { backgroundColor: '#151515' } : ''">
       <div class="flex">
         <van-icon class="marginRight20" class-prefix="net" name="xiangzuo-jiantou" size="24" @click="router.go(-1)" />
-        <span>{{ al ? '专辑' : '歌单' }}</span>
+        <span v-if="!showInp">{{ al ? '专辑' : '歌单' }}</span>
+        <input v-if="showInp" v-model="searKey" v-focus type="text" class="searInp" placeholder="请输入您要搜索的歌曲" @keyup.enter="showInp = !showInp" />
       </div>
       <div class="flex">
-        <van-icon class="marginRight20" class-prefix="net" name="sousuo" />
+        <van-icon v-if="!showInp" class="marginRight20" class-prefix="net" name="sousuo" @click="tosearh" />
         <!-- <van-icon name="ellipsis" style="transform: rotate(90deg)" /> -->
         <Playing color="#d03333" />
       </div>
@@ -28,7 +29,7 @@
               <div class="author-logo flex flex-acenter" v-if="!al">
                 <van-image :src="(playList.creator && playList.creator.avatarUrl) || './static/img/loadingErroe.png'" width="6vw" height="6vw" class="marginRight10" round fit="fill" />
               </div>
-              <div class="author-name van-ellipsis marginRight10" @click="router.push({ name: 'userinfo', params: { id: userId } })">{{ (playList.creator && playList.creator.nickname) || (songList[0] && getAuthors(songList[0].ar)) }}</div>
+              <div class="author-name van-ellipsis marginRight10" @click="router.push({ name: 'userinfo', params: { id: userId } })">{{ (playList.creator && playList.creator.nickname) || (songListCom[0] && getAuthors(songListCom[0].ar)) }}</div>
               <van-icon name="arrow" v-if="followed || userId === +store.getters.userid || al" />
               <van-icon v-else class-prefix="net" name="plus" class="follow" color="#bbb5b5" @click="toFollow" />
             </div>
@@ -61,15 +62,15 @@
     </div>
   </div>
   <div v-show="!showInfo" class="marginTop20" style="overflow: hidden">
-    <div class="music-item" v-for="(item, index) in songList" :key="item.id">
-      <MusicItem :list-id="id" :is-album="+al" :show-pic="false" :is-top="parseInt(istop)" :id="item.id" :pic-url="item.al.picUrl" :index="index + 1" :album-name="item.name" :author-name="item.ar[0].name" :description="item.al.name" />
+    <div class="music-item" v-for="(item, index) in songListCom" :key="item.id">
+      <MusicItem :list-id="id" :is-album="+al" :show-pic="false" :is-top="parseInt(istop)" :id="item.id" :pic-url="item.al.picUrl" :index="index + 1" :album-name="item.name" :author-name="getAuthors(item.ar)" :description="item.al.name" />
     </div>
   </div>
   <Info @close="showInfo = false" :tabs="playList.tags" :show="showInfo" :url="playList.coverImgUrl || playList.picUrl" :descript="playList.description" :nickname="playList.name" :color-arr="arr" />
 </template>
 
 <script>
-import { ref, onMounted, reactive, toRefs, nextTick, defineAsyncComponent, watch } from 'vue'
+import { ref, onMounted, reactive, toRefs, nextTick, defineAsyncComponent, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { followUser } from '@/api/user.js'
@@ -228,6 +229,26 @@ export default {
         }
       })
     }
+
+    let showInp = ref(false)
+    let searKey = ref('')
+    let songListCom = computed(() => {
+      if (!searKey.value) {
+        return songList
+      }
+      let result = songList.filter((item) => item.name.indexOf(searKey.value) !== -1 || getAuthors(item.ar).indexOf(searKey.value) !== -1 || item.al.name.indexOf(searKey.value) !== -1)
+      if (!result.length) {
+        Toast.fail('没有您要找的歌曲')
+        return songList
+      }
+      return result
+    })
+
+    const tosearh = () => {
+      showInp.value = !showInp.value
+      searKey.value = ''
+    }
+
     return {
       id,
       al,
@@ -247,7 +268,11 @@ export default {
       toFollow,
       showInfo,
       store,
-      getAuthors
+      getAuthors,
+      showInp,
+      searKey,
+      songListCom,
+      tosearh
     }
   }
 }
@@ -262,6 +287,20 @@ export default {
   top: 0;
   left: 0;
   z-index: 9;
+  .searInp {
+    width: 64vw;
+    background: none;
+    outline: none;
+    border: none;
+    font-size: 4.2667vw;
+    border-bottom: 1px solid #eee;
+    &::-moz-placeholder {
+      color: #ccc;
+    }
+    &::placeholder {
+      color: #ccc;
+    }
+  }
 }
 .top-part {
   position: relative;

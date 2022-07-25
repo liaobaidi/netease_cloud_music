@@ -1,7 +1,7 @@
 <template>
   <div class="music-item flex flex-acenter" @click="router.push({ name: 'listen', params: { id, listid: listId, isal: isAlbum } })">
     <div v-if="showPic" class="pic marginRight10 flex flex-center flex-acenter">
-      <van-image :src="picUrl" fit="fill" error-icon="./static/img/loadingErroe.png" />
+      <van-image :src="picUrl" width="100%" height="100%" fit="fill" error-icon="./static/img/loadingErroe.png" />
     </div>
     <div v-if="index" :class="['flex flex-center flex-acenter marginRight10', showPic ? '' : 'nopic']" :style="parseInt(isTop) && index <= 3 ? 'color: #d03333' : ''">
       {{ index }}

@@ -441,7 +441,7 @@ export default {
 .history {
   height: 6vw;
   font-size: 4.2667vw;
-  margin-top: 1vh;
+  margin-top: 3vh;
   .wrap {
     overflow: hidden;
     width: 70vw;
