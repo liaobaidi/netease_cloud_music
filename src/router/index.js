@@ -76,6 +76,12 @@ const routes = [
     path: '/recommend',
     name: 'recommend',
     component: () => import('@/views/Recommend/index.vue')
+  },
+  {
+    path: '/comment/:id',
+    name: 'comment',
+    component: () => import('@/views/Comment/index.vue'),
+    props: true
   }
 ]
 

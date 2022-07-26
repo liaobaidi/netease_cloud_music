@@ -50,7 +50,7 @@
         <span @click="like" :style="subscribed || userId === +store.getters.userid ? 'color: gray' : ''">{{ countUnit(bookedCount) || '收藏' }}</span>
       </div>
       <div style="color: gray">|</div>
-      <div class="flex flex-acenter">
+      <div class="flex flex-acenter" @click="router.push({ name: 'comment', params: { id }, query: { isal: al } })">
         <van-icon class="marginRight10" class-prefix="net" name="pinglun" />
         <span>{{ countUnit(slInfo.commentCount) || '评论' }}</span>
       </div>

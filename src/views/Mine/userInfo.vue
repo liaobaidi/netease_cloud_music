@@ -79,7 +79,7 @@ import { useStore } from 'vuex'
 import countUnit from '@/utils/countUnit.js'
 import { getCity, getBirth } from '@/utils'
 import dayjs from 'dayjs'
-import { ImagePreview } from 'vant'
+import { ImagePreview, Toast } from 'vant'
 export default {
   name: 'UserInfo',
   props: {
@@ -115,6 +115,9 @@ export default {
         Object.assign(userProfile, res.profile)
         level.value = res.level
         createDays.value = res.createDays
+      } else {
+        Toast.fail('没有找到该村民的信息')
+        router.go(-1)
       }
     })
 

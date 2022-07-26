@@ -36,6 +36,9 @@
 .font-weight500 {
   font-weight: 500;
 }
+.blod {
+  font-weight: bold;
+}
 
 .border-bottom {
   border-bottom: 1px solid var(--theme-text-color);
@@ -54,7 +57,7 @@
 }
 
 .transition {
-  transition: all .6s ease-in-out;
+  transition: all 0.6s ease-in-out;
   scroll-behavior: smooth;
 }
 
