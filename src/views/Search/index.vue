@@ -98,7 +98,7 @@
       </div>
       <div v-if="item === '歌手' || item === '用户'">
         <div v-if="resultList[item].length">
-          <div v-for="user in resultList[item]" :key="user.id || user.userId" class="music-item flex flex-acenter relative" @click="item === '用户' && router.push({ name: 'userinfo', params: { id: user.userId } })">
+          <div v-for="user in resultList[item]" :key="user.id || user.userId" class="music-item flex flex-acenter relative" @click="item === '用户' ? router.push({ name: 'userinfo', params: { id: user.userId } }) : router.push({ name: 'artist', params: { id: user.id } })">
             <div class="cover marginRight20">
               <van-image :src="user.img1v1Url || user.avatarUrl" round loading-icon="./static/img/logo.png" />
             </div>
@@ -200,7 +200,7 @@ export default {
         searchInfo.value = ''
       } else {
         showResult.value = true
-        bs.destroy()
+        wrap && bs.destroy()
       }
     })
 
@@ -319,7 +319,7 @@ export default {
           historyArr.length = 0
           historyArr.push(...JSON.parse(localStorage.getItem('history')))
           showResult.value = true
-          bs.destroy()
+          wrap && bs.destroy()
         }
       })
     }

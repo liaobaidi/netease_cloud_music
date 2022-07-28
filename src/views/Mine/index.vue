@@ -248,7 +248,7 @@ export default {
     .threedata {
       width: 50%;
       margin: 10px auto;
-      font-size: 2.6667vw;
+      font-size: 3.2vw;
       color: gray;
     }
   }

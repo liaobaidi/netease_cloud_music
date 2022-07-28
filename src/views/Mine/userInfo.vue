@@ -100,7 +100,7 @@ export default {
     watch(
       id,
       () => {
-        let userId = store.getters.userid
+        let userId = +store.getters.userid
         if (!userId) {
           userId = +JSON.parse(localStorage.getItem('userId'))
         }
@@ -232,7 +232,7 @@ export default {
   .threedata {
     width: 50%;
     margin: 10px auto;
-    font-size: 2.6667vw;
+    font-size: 3.2vw;
     color: gray;
   }
   .tags {

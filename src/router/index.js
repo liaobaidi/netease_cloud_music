@@ -82,6 +82,12 @@ const routes = [
     name: 'comment',
     component: () => import('@/views/Comment/index.vue'),
     props: true
+  },
+  {
+    path: '/artist/:id',
+    name: 'artist',
+    component: () => import('@/views/Mine/artistInfo.vue'),
+    props: true
   }
 ]
 

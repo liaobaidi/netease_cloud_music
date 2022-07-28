@@ -16,19 +16,21 @@
           <van-icon name="ellipsis" @click.stop="openSubscribe(item.followed, item.userId)" />
         </div>
       </div>
+      <div v-if="!follows.length">您还没有关注的人~</div>
     </div>
     <div v-else style="margin-top: 8vh">
-      <div v-for="item in followeds" :key="item.userId" class="flex flex-acenter flex-bet sublist relative" @click="router.push({ name: 'userinfo', params: { id: item.userId } })">
+      <div v-for="item in followeds" :key="item.userId || item.userProfile.userId" class="flex flex-acenter flex-bet sublist relative" @click="router.push({ name: 'userinfo', params: { id: item.userId } })">
         <div class="flex flex-acenter info">
           <div class="logo">
-            <van-image :src="item.avatarUrl" width="100%" height="100%" round />
+            <van-image :src="item.avatarUrl || item.userProfile.avatarUrl" width="100%" height="100%" round />
           </div>
-          <div class="nickname marginLeft10">{{ item.nickname }}</div>
+          <div class="nickname marginLeft10">{{ item.nickname || item.userProfile.nickname }}</div>
         </div>
         <div v-if="show" class="icon">
           <van-icon name="ellipsis" @click.stop="openSubscribe(item.followed, item.userId)" />
         </div>
       </div>
+      <div v-if="!followeds.length">您还没有粉丝~</div>
     </div>
   </div>
   <van-action-sheet v-model:show="showSubscribe" close-on-click-action>
@@ -51,6 +53,7 @@ import { reactive, ref, toRefs, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { getFollows, getFolloweds, followUser } from '@/api/user.js'
+import { getArtistFolloweds } from '@/api/artist.js'
 import { Toast } from 'vant'
 export default {
   name: 'Subscribe',
@@ -65,24 +68,43 @@ export default {
     const routes = useRoute()
     const store = useStore()
     const { id } = toRefs(props)
-    const { subscribe } = routes.query
     let follows = reactive([])
     let followeds = reactive([])
-    if (+subscribe) {
-      getFollows({ uid: id.value }).then((res) => {
-        // console.log(res, ' getFollows')
-        if (res.code === 200) {
-          follows.push(...res.follow)
+    let subscribe = ref(-1)
+    let isArtist = ref(0)
+
+    watch(
+      routes,
+      () => {
+        subscribe.value = routes.query.subscribe
+        isArtist.value = routes.query.isArtist
+        if (isArtist.value) {
+          getArtistFolloweds({ id: id.value, limit: 50 }).then((res) => {
+            // console.log(res, 'getFolloweds')
+            if (res.code === 200) {
+              followeds.push(...res.data)
+            }
+          })
+        } else {
+          if (+subscribe.value) {
+            getFollows({ uid: id.value }).then((res) => {
+              // console.log(res, ' getFollows')
+              if (res.code === 200) {
+                follows.push(...res.follow)
+              }
+            })
+          } else {
+            getFolloweds({ uid: id.value }).then((res) => {
+              // console.log(res, 'getFolloweds')
+              if (res.code === 200) {
+                followeds.push(...res.followeds)
+              }
+            })
+          }
         }
-      })
-    } else {
-      getFolloweds({ uid: id.value }).then((res) => {
-        // console.log(res, 'getFolloweds')
-        if (res.code === 200) {
-          followeds.push(...res.followeds)
-        }
-      })
-    }
+      },
+      { immediate: true, deep: true }
+    )
 
     let showSubscribe = ref(false)
     let actions = reactive([])
