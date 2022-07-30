@@ -62,19 +62,19 @@
     <template #default>
       <div class="cart flex flex-center flex-acenter">
         <div class="inner-cart">
-          <div class="flex flex-acenter flex-bet">
+          <div class="flex flex-acenter flex-bet" @click="toArtist(null, info.ar)">
             <div><van-icon name="contact" size="3vh" /></div>
             <div class="cart-info flex flex-acenter van-ellipsis">
               <span>歌手: {{ info.ar && getAuthors(info.ar) }}</span>
             </div>
           </div>
-          <div class="flex flex-acenter flex-bet">
+          <div class="flex flex-acenter flex-bet" @click="toArtist(info.originSongSimpleData, info.ar)">
             <van-icon class-prefix="net" name="friend" size="3vh" />
             <div class="cart-info flex flex-acenter van-ellipsis">
               <span>创作者: {{ info.originSongSimpleData ? getAuthors(info.originSongSimpleData.artists) : info.ar && getAuthors(info.ar) }}</span>
             </div>
           </div>
-          <div class="flex flex-acenter flex-bet">
+          <div class="flex flex-acenter flex-bet" @click="router.push({ name: 'songsheet', params: { id: info.al.id }, query: { al: 1 } })">
             <van-icon class-prefix="net" name="zhuanji" size="3vh" />
             <div class="cart-info flex flex-acenter van-ellipsis">
               <span>专辑: {{ info.al && info.al.name }}</span>
@@ -283,6 +283,7 @@ export default {
       { deep: true, immediate: true }
     )
     onActivated(() => {
+      showMore.value = false
       // console.log(listid.value, 'id')
     })
 
@@ -396,6 +397,14 @@ export default {
       { immediate: true, deep: true }
     )
 
+    const toArtist = (origin, artist) => {
+      if (!origin) {
+        getAuthors(artist).indexOf('/') === -1 && router.push({ name: 'artist', params: { id: artist[0].id } })
+        return
+      }
+      getAuthors(origin.artists).indexOf('/') === -1 && router.push({ name: 'artist', params: { id: origin.artists[0].id } })
+    }
+
     return {
       router,
       info,
@@ -415,7 +424,8 @@ export default {
       triggle,
       play_next,
       play_previous,
-      showMore
+      showMore,
+      toArtist
     }
   }
 }

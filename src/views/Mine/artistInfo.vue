@@ -1,42 +1,44 @@
 <template>
-  <div class="header padding4vw fixed flex flex-acenter" :style="show ? { backgroundColor: '#151515' } : ''">
-    <van-icon class-prefix="net" name="xiangzuo-jiantou" class="icon-size" @click="router.go(-1)" />
-    <transition name="van-fade">
-      <span v-if="show" class="marginLeft10">{{ userProfile.name }}</span>
-    </transition>
-    <transition name="van-fade">
-      <div v-if="show" class="top-follow absolute flex flex-center">
-        <span v-if="!fInfo.isFollow" class="no flex flex-center flex-acenter" @click="toFollow(1)">+ 关注</span>
-        <span v-else class="yes flex flex-center flex-acenter" @click="toFollow(0)">{{ fInfo.followDay.slice(0, 3) }}</span>
-      </div>
-    </transition>
-  </div>
-  <div class="top-part flex relative">
-    <div class="absolute top-part-bg" :style="{ backgroundImage: `url(${userProfile.cover})` }" />
-  </div>
-  <div class="padding4vw">
-    <div class="userinfo">
-      <div class="nickname text-center">{{ userProfile.name }}</div>
-      <div class="tabs flex flex-acenter flex-center">
-        <span class="van-ellipsis text-center">{{ tabs }}</span>
-      </div>
-      <div class="threedata flex flex-acenter flex-ard" @click="router.push({ name: 'subscribe', params: { id }, query: { subscribe: 0, isArtist: 1 } })">
-        <div>{{ countUnit(fInfo.fansCnt) }} 粉丝</div>
-      </div>
-      <div class="follow flex flex-center">
-        <span v-if="!fInfo.isFollow" class="no flex flex-center flex-acenter" @click="toFollow(1)">+ 关注</span>
-        <span v-else class="yes flex flex-center flex-acenter" @click="toFollow(0)">{{ fInfo.followDay.slice(0, 3) }}</span>
-      </div>
+  <div style="overflow: hidden">
+    <div class="header padding4vw fixed flex flex-acenter" :style="show ? { backgroundColor: '#151515' } : ''">
+      <van-icon class-prefix="net" name="xiangzuo-jiantou" class="icon-size" @click="router.go(-1)" />
+      <transition name="van-fade">
+        <span v-if="show" class="marginLeft10">{{ userProfile.name }}</span>
+      </transition>
+      <transition name="van-fade">
+        <div v-if="show" class="top-follow absolute flex flex-center">
+          <span v-if="!fInfo.isFollow" class="no flex flex-center flex-acenter" @click="toFollow(1)">+ 关注</span>
+          <span v-else class="yes flex flex-center flex-acenter" @click="toFollow(0)">{{ fInfo.followDay.slice(0, 3) }}</span>
+        </div>
+      </transition>
     </div>
-    <div class="dec" v-if="userProfile.briefDesc">
-      <div class="dec-header flex flex-acenter">艺人描述</div>
-      <div class="dec-main">{{ userProfile.briefDesc }}</div>
+    <div class="top-part flex relative">
+      <div class="absolute top-part-bg" :style="{ backgroundImage: `url(${userProfile.cover})` }" />
     </div>
-    <div class="hots">
-      <div class="hots-header flex flex-acenter">热门歌曲50首</div>
-      <div class="hots-main">
-        <div v-for="(item, index) in songList" :key="item.id" class="item" @click="router.push({ name: 'listen', params: { id: item.id } })">
-          <MusicItem :id="item.id" :showPic="false" :index="index + 1" :album-name="item.name" :author-name="getAuthors(item.ar)" :description="item.al && item.al.name" />
+    <div class="padding4vw">
+      <div class="userinfo">
+        <div class="nickname text-center">{{ userProfile.name }}</div>
+        <div class="tabs flex flex-acenter flex-center">
+          <span class="van-ellipsis text-center">{{ tabs }}</span>
+        </div>
+        <div class="threedata flex flex-acenter flex-ard" @click="router.push({ name: 'subscribe', params: { id }, query: { subscribe: 0, isArtist: 1 } })">
+          <div>{{ countUnit(fInfo.fansCnt) }} 粉丝</div>
+        </div>
+        <div class="follow flex flex-center">
+          <span v-if="!fInfo.isFollow" class="no flex flex-center flex-acenter" @click="toFollow(1)">+ 关注</span>
+          <span v-else class="yes flex flex-center flex-acenter" @click="toFollow(0)">{{ fInfo.followDay.slice(0, 3) }}</span>
+        </div>
+      </div>
+      <div class="dec" v-if="userProfile.briefDesc">
+        <div class="dec-header flex flex-acenter">艺人描述</div>
+        <div class="dec-main">{{ userProfile.briefDesc }}</div>
+      </div>
+      <div class="hots">
+        <div class="hots-header flex flex-acenter">热门歌曲{{ songList.length }}首</div>
+        <div class="hots-main">
+          <div v-for="(item, index) in songList" :key="item.id" class="item" @click="router.push({ name: 'listen', params: { id: item.id } })">
+            <MusicItem :id="item.id" :showPic="false" :index="index + 1" :album-name="item.name" :author-name="getAuthors(item.ar)" :description="item.al && item.al.name" />
+          </div>
         </div>
       </div>
     </div>
@@ -71,6 +73,10 @@ export default {
       // console.log(res, 'getArtistInfo')
       if (res.code === 200) {
         Object.assign(userProfile, res.data.artist)
+        if (!res.data.identify) {
+          tabs.value = '暂无认证'
+          return
+        }
         tabs.value = res.data.identify.imageDesc
       }
     })
