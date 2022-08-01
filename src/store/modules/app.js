@@ -1,6 +1,6 @@
 const state = {
   isal: 0,
-  current_id: -1
+  current_id: 0
 }
 
 const mutations = {
@@ -9,6 +9,7 @@ const mutations = {
   },
   setCurrentId(state, id) {
     state.current_id = id
+    localStorage.setItem('current_id', id)
   }
 }
 

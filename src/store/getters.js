@@ -9,6 +9,6 @@ export default {
     return app.state.isal
   },
   current_id() {
-    return app.state.current_id
+    return app.state.current_id || localStorage.getItem('current_id') || JSON.parse(localStorage.getItem('tempids'))[0]
   }
 }

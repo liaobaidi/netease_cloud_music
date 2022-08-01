@@ -24,7 +24,6 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 9527,
     open: true,
-    // 开发模式要注释 proxy
     proxy: {
       '/api': {
         target: 'http://175.178.123.70:3000',

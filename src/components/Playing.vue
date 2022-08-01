@@ -23,7 +23,6 @@ export default {
     const router = useRouter()
     const store = useStore()
     const { color } = toRefs(props)
-
     return {
       router,
       store,
