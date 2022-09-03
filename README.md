@@ -1,7 +1,18 @@
-# Vue 3 + Vite
+# netease_cloud_music
+## 开始使用
+### 克隆至本地
+```bash
+git clone https://github.com/liaobaidi/netease_cloud_music.git
+或者
+git clone https://gitee.com/liaobaidi/netease_cloud_music.git
+```
+### 下载依赖项
+```bash
+npm install
+```
+### 运行项目
+```bash
+npm run dev
+```
+## 没有安装 Git ?
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
-
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
