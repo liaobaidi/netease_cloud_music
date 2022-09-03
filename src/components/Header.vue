@@ -1,14 +1,17 @@
 <template>
   <van-popup v-model:show="show" :style="{ height: '100vh', width: '85vw', backgroundColor: 'var(--theme-color)' }" teleport="body" position="left">
     <div class="flex flex-col flex-acenter flex-bet popup-container">
-      <div class="flex flex-col flex-acenter flex-bet" style="height: 26vh" @click="router.push({ name: 'userinfo', params: {id: userInfo.userId} })">
+      <div class="flex flex-col flex-acenter flex-bet" style="height: 26vh" @click="router.push({ name: 'userinfo', params: { id: userInfo.userId } })">
         <van-image :src="userInfo.avatarUrl || ''" round width="20vh" height="20vh" />
         <div>
           <span>{{ userInfo.nickname || '' }}</span>
           <van-icon name="arrow" />
         </div>
       </div>
-      <van-button @click="showClose" type="primary" block color="#2c2c2c" class="logout" style="color: #d03333">退出登录/关闭</van-button>
+      <div style="width: 100%">
+        <van-button type="primary" block color="#2c2c2c" style="color: #d03333" @click="router.push({ name: 'projectinfo' })">项目介绍</van-button>
+        <van-button @click="showClose" type="primary" block color="#2c2c2c" class="logout" style="color: #d03333">退出登录/关闭</van-button>
+      </div>
     </div>
   </van-popup>
   <van-action-sheet v-model:show="close">
@@ -112,13 +115,13 @@ export default {
 }
 .popup-container {
   width: 100%;
-  height: 75vh;
+  height: 65vh;
   margin-top: 25vh;
   padding: 0 2vw 0 4vw;
   .logout {
     font-size: 4vw;
     line-height: 100%;
-    margin-bottom: 25vh;
+    margin-top: 2vh;
   }
 }
 .dec,

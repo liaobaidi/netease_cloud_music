@@ -233,7 +233,7 @@ export default {
 
     let searchInfo = ref('')
     let offset = ref(0)
-    let limit = ref(30)
+    let limit = ref(100)
     let tablist = ['单曲', '歌单', '专辑', '歌手', '用户']
     let type = ref(1)
     let searchName = ref('单曲')
@@ -377,6 +377,7 @@ export default {
   border-bottom: 1px solid #7a7e81;
   width: 78vw;
   height: 6vh;
+  line-height: 6vh;
   color: #bbb;
 }
 :deep(.van-nav-bar__title) {

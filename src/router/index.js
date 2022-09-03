@@ -88,6 +88,11 @@ const routes = [
     name: 'artist',
     component: () => import('@/views/Mine/artistInfo.vue'),
     props: true
+  },
+  {
+    path: '/projectinfo',
+    name: 'projectinfo',
+    component: () => import('@/views/ProjectInfo/index.vue')
   }
 ]
 

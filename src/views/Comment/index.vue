@@ -1,7 +1,7 @@
 <template>
   <div class="header padding4vw fixed flex flex-acenter">
     <van-icon class-prefix="net" name="xiangzuo-jiantou" class="icon-size" @click="router.go(-1)" />
-    <div class="marginLeft10">评论({{ commentsCom.length }})</div>
+    <div class="marginLeft10">评论({{ total }})</div>
   </div>
   <div style="height: 6vh" />
   <div class="playlist padding4vw flex flex-acenter relative" @click="router.push({ name: 'songsheet', params: { id }, query: { al } })">
@@ -32,30 +32,31 @@
       </div>
     </van-sticky>
     <div class="com-main">
-      <div v-if="!commentsCom.length" class="nodata flex flex-center flex-acenter">暂时还没有评论~</div>
-      <div class="item relative" v-for="(item, index) in commentsCom" :key="item.commentId">
-        <div class="info flex flex-acenter relative">
-          <div class="cover" @click="router.push({ name: 'userinfo', params: { id: item.user.userId } })">
-            <van-image :src="item.user.avatarUrl" round width="100%" height="100%" />
+      <van-list v-model:loading="loading" :finished="finished" finished-text="人家也是有底线的" @load="onLoad">
+        <div class="item relative" v-for="(item, index) in commentsCom" :key="item.commentId">
+          <div class="info flex flex-acenter relative">
+            <div class="cover" @click="router.push({ name: 'userinfo', params: { id: item.user.userId } })">
+              <van-image :src="item.user.avatarUrl" round width="100%" height="100%" />
+            </div>
+            <div class="detail" @click="router.push({ name: 'userinfo', params: { id: item.user.userId } })">
+              <div class="nickname">{{ item.user.nickname }}</div>
+              <div class="time">{{ item.timeStr }}</div>
+            </div>
+            <div class="icon absolute">
+              <span :class="follows[index] ? 'active' : ''">{{ countUnit(followCount[index]) }}</span>
+              <van-icon v-if="!follows[index]" name="good-job-o" size="3.2vw" @click="triggleLike(item.commentId, 1)" />
+              <van-icon v-else name="good-job" size="3.2vw" color="#d03333" @click="triggleLike(item.commentId, 0)" />
+            </div>
           </div>
-          <div class="detail" @click="router.push({ name: 'userinfo', params: { id: item.user.userId } })">
-            <div class="nickname">{{ item.user.nickname }}</div>
-            <div class="time">{{ item.timeStr }}</div>
-          </div>
-          <div class="icon absolute">
-            <span :class="follows[index] ? 'active' : ''">{{ countUnit(followCount[index]) }}</span>
-            <van-icon v-if="!follows[index]" name="good-job-o" size="3.2vw" @click="triggleLike(item.commentId, 1)" />
-            <van-icon v-else name="good-job" size="3.2vw" color="#d03333" @click="triggleLike(item.commentId, 0)" />
-          </div>
+          <div class="content flex flex-acenter">{{ item.content }}</div>
         </div>
-        <div class="content flex flex-acenter">{{ item.content }}</div>
-      </div>
+      </van-list>
     </div>
   </div>
 </template>
 
 <script>
-import { computed, reactive, ref, toRefs, watch } from 'vue'
+import { computed, reactive, ref, toRefs, watch, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getPlayListDetail, getAlbums } from '@/api/songList.js'
 import { getComments, likeComment, getAlbumComments } from '@/api/comment.js'
@@ -74,46 +75,72 @@ export default {
     let { id } = toRefs(props)
     let al = ref(0)
     let info = reactive({})
+    let loading = ref(true)
+    let finished = ref(false)
+    let page = ref(1)
+    let total = ref(0)
+    let isFirst = ref(true)
 
-    watch(
-      route,
-      () => {
-        al.value = route.query.isal
-        if (isNaN(al.value)) al.value = 0
-        if (+al.value) {
-          getAlbums({ id: id.value }).then((res) => {
-            // console.log(res, 'getAlbums')
-            if (res.code === 200) {
-              Object.assign(info, res.album)
-            }
-          })
-          getAlbumComments({ id: id.value, limit: 100 }).then((res) => {
-            console.log(res, 'getAlbumComments')
-            if (res.code === 200) {
-              comments.push(...res.comments)
-              follows.push(...res.comments.map((item) => item.liked))
-              followCount.push(...res.comments.map((item) => item.likedCount))
-            }
-          })
-        } else {
-          getPlayListDetail({ id: id.value }).then((res) => {
-            // console.log(res, 'getPlayListDetail')
-            if (res.code === 200) {
-              Object.assign(info, res.playlist)
-            }
-          })
-          getComments({ id: id.value, limit: 100 }).then((res) => {
-            console.log(res, 'getComments')
-            if (res.code === 200) {
-              comments.push(...res.comments)
-              follows.push(...res.comments.map((item) => item.liked))
-              followCount.push(...res.comments.map((item) => item.likedCount))
-            }
-          })
+    const onLoad = () => {
+      if(loading.value && isFirst.value) {
+        return
+      }
+      page.value += 50
+    }
+    watchEffect(async () => {
+      console.log(page.value) //不能省略
+      al.value = route.query.isal
+      if (isNaN(al.value)) al.value = 0
+      if (+al.value) {
+        const res = await getAlbums({ id: id.value })
+        // console.log(res, 'getAlbums')
+        if (res.code === 200) {
+          Object.assign(info, res.album)
         }
-      },
-      { immediate: true, deep: true }
-    )
+        loading.value = true
+        getAlbumComments({ id: id.value, limit: 50, offset: page.value })
+          .then((res) => {
+            isFirst.value = false
+            // console.log(res, 'getAlbumComments')
+            if (res.code === 200) {
+              if (res.comments.length === 0) {
+                finished.value = true
+              }
+              total.value = res.total
+              comments.push(...res.comments)
+              follows.push(...res.comments.map((item) => item.liked))
+              followCount.push(...res.comments.map((item) => item.likedCount))
+            }
+          })
+          .finally(() => {
+            loading.value = false
+          })
+      } else {
+        const res = await getPlayListDetail({ id: id.value })
+        // console.log(res, 'getPlayListDetail')
+        if (res.code === 200) {
+          Object.assign(info, res.playlist)
+        }
+        loading.value = true
+        getComments({ id: id.value, limit: 50, offset: page.value })
+          .then((res) => {
+            isFirst.value = false
+            // console.log(res, 'getComments')
+            if (res.code === 200) {
+              if (res.comments.length === 0) {
+                finished.value = true
+              }
+              total.value = res.total
+              comments.push(...res.comments)
+              follows.push(...res.comments.map((item) => item.liked))
+              followCount.push(...res.comments.map((item) => item.likedCount))
+            }
+          })
+          .finally(() => {
+            loading.value = false
+          })
+      }
+    })
 
     let comments = reactive([])
     let follows = reactive([])
@@ -167,6 +194,10 @@ export default {
       follows,
       followCount,
       countUnit,
+      loading,
+      finished,
+      total,
+      onLoad,
       triggleLike
     }
   }
