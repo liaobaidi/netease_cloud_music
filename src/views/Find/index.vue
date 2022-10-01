@@ -26,7 +26,12 @@
       </template>
     </van-swipe>
     <ul class="ball flex marginTop20">
-      <li v-for="item in ballList" :key="item.id" class="flex flex-col flex-center flex-acenter ball-item" @click="toLink(item.name)">
+      <li
+        v-for="item in ballList"
+        :key="item.id"
+        class="flex flex-col flex-center flex-acenter ball-item"
+        @click="toLink(item.name)"
+      >
         <div class="icon flex flex-center flex-acenter">
           <van-icon :name="item.iconUrl" color="#d03333" size="40" />
         </div>
@@ -59,7 +64,11 @@
       <div class="cart-item">
         <CartItem>
           <template #left>
-            <span><van-icon name="replay" @click="changeSpecialList" /> 精选{{ tags[tagsIndex] && tags[tagsIndex].name }}歌单</span>
+            <span
+              ><van-icon name="replay" @click="changeSpecialList" /> 精选{{
+                tags[tagsIndex] && tags[tagsIndex].name
+              }}歌单</span
+            >
           </template>
           <template #right>
             <div class="flex flex-center flex-acenter right-text">
@@ -110,11 +119,14 @@
             </div>
           </template>
           <template #main>
-            <swiper-action @slide="changeDirection($event, 'topList')" class="flex transition" id="topList">
+            <div class="flex transition topList">
               <div class="toplistItem" v-for="(item, index) in topList.list" :key="item.id">
-                <CartItem bg-color="#1d1c21">
+                <CartItem bg-color="#1d1c21" radius>
                   <template #left>
-                    <div @click="router.push({ name: 'songsheet', params: { id: item.id, istop: 1 } })" class="flex flex-center flex-acenter">
+                    <div
+                      @click="router.push({ name: 'songsheet', params: { id: item.id, istop: 1 } })"
+                      class="flex flex-center flex-acenter"
+                    >
                       <span>{{ item.name }}</span>
                       <van-icon name="arrow" />
                     </div>
@@ -124,12 +136,23 @@
                   </template>
                   <template #main>
                     <div class="flex flex-col">
-                      <MusicItem v-for="(it, i) in topList.info[index]" :key="it.id" :list-id="topList_id[i]" :id="it.id" :index="i + 1" :pic-url="it.al.picUrl" :album-name="it.name" :author-name="it.ar[0].name" :description="it.al.name" class="musiclist" />
+                      <MusicItem
+                        v-for="(it, i) in topList.info[index]"
+                        :key="it.id"
+                        :list-id="topList_id[i]"
+                        :id="it.id"
+                        :index="i + 1"
+                        :pic-url="it.al.picUrl"
+                        :album-name="it.name"
+                        :author-name="it.ar[0].name"
+                        :description="it.al.name"
+                        class="musiclist"
+                      />
                     </div>
                   </template>
                 </CartItem>
               </div>
-            </swiper-action>
+            </div>
           </template>
         </CartItem>
       </div>
@@ -147,7 +170,14 @@ import MusicCart from '@/components/musicCart.vue'
 import MusicItem from '@/components/musicItem.vue'
 import { getSearchDefault } from '@/api/search.js'
 import { getFindData, getBanners, getBallList } from '@/api/app.js'
-import { getRecommendList, getSpecialListTags, getSpecialList, getAlbumList, getTopLists, getPlayListDetail } from '@/api/songList.js'
+import {
+  getRecommendList,
+  getSpecialListTags,
+  getSpecialList,
+  getAlbumList,
+  getTopLists,
+  getPlayListDetail
+} from '@/api/songList.js'
 import { Notify, Toast } from 'vant'
 import { useRouter } from 'vue-router'
 export default {
@@ -180,31 +210,31 @@ export default {
     let topListCurrentIndex = ref(0)
     let router = useRouter()
 
-    getBanners().then((res) => {
+    getBanners().then(res => {
       if (res.code === 200) {
         // console.log(res, 'banners')
         banners.push(...res.banners)
       }
     })
-    getSearchDefault().then((res) => {
+    getSearchDefault().then(res => {
       // console.log(res, 'hfdiwoq')
       if (res.code === 200) {
         searchKey.value = res.data.realkeyword
       }
     })
-    getBallList().then((res) => {
+    getBallList().then(res => {
       // console.log(res, 'ballList')
       if (res.code === 200) {
         ballList.push(...res.data)
       }
     })
-    getRecommendList({ limit: 6 }).then((res) => {
+    getRecommendList({ limit: 6 }).then(res => {
       // console.log(res, 'recommendList')
       if (res.code === 200) {
         musicRecommendList.push(...res.result)
       }
     })
-    getSpecialListTags().then((res) => {
+    getSpecialListTags().then(res => {
       // console.log(res, 'specialListTags')
       if (res.code === 200) {
         tags.push(...res.tags)
@@ -212,7 +242,7 @@ export default {
       }
     })
     const getSpecialLists = () => {
-      getSpecialList({ limit: 12, cat: tags[tagsIndex.value].name }).then((res) => {
+      getSpecialList({ limit: 12, cat: tags[tagsIndex.value].name }).then(res => {
         // console.log(res, 'getSpecialList', tags[tagsIndex.value].name)
         if (res.code === 200) {
           specialList.length = 0
@@ -231,7 +261,7 @@ export default {
       }
       getSpecialLists()
     }
-    getAlbumList().then((res) => {
+    getAlbumList().then(res => {
       // console.log(res, 'albumList')
       albumTotal.value = Math.ceil(res.products.length / 3)
       let temp = []
@@ -249,69 +279,20 @@ export default {
     // getFindData().then((res) => {
     //   console.log(res, 'findData')
     // })
-    onMounted(() => {
-      nextTick(() => {
-        // swiperAction = document.querySelector('#albumList')
-        topListAction = document.querySelector('#topList')
-        // swiperAction.style.left = 0
-        topListAction.style.left = 0
-      })
-    })
     onBeforeUnmount(() => {
       clearInterval(specialListInterval)
     })
 
-    const changeDirection = (e, key) => {
-      if (e.direction === 'left') {
-        // if (key === 'albumList') {
-        //   albumCurrentIndex.value++
-        //   if (albumCurrentIndex.value < albumTotal.value) {
-        //     swiperAction.style.left = -92 + parseInt(swiperAction.style.left) + 'vw'
-        //   } else {
-        //     albumCurrentIndex.value = albumTotal.value - 1
-        //     return
-        //   }
-        // }
-        if (key === 'topList') {
-          topListCurrentIndex.value++
-          if (topListCurrentIndex.value < 5) {
-            topListAction.style.left = -90 + parseInt(topListAction.style.left) + 'vw'
-          } else {
-            topListCurrentIndex.value = 4
-            return
-          }
-        }
-      } else {
-        // if (key === 'albumList') {
-        //   albumCurrentIndex.value--
-        //   if (albumCurrentIndex.value < 0) {
-        //     albumCurrentIndex.value = 0
-        //     return
-        //   } else {
-        //     swiperAction.style.left = 92 + parseInt(swiperAction.style.left) + 'vw'
-        //   }
-        // }
-        if (key === 'topList') {
-          topListCurrentIndex.value--
-          if (topListCurrentIndex.value < 0) {
-            topListCurrentIndex.value = 0
-            return
-          } else {
-            topListAction.style.left = 90 + parseInt(topListAction.style.left) + 'vw'
-          }
-        }
-      }
-    }
     let topList_id = reactive([])
-    getTopLists().then((res) => {
+    getTopLists().then(res => {
       // console.log(res, 'getTopLists')
       if (res.code === 200) {
-        let ids = res.list.slice(0, 5).map((item) => item.id)
+        let ids = res.list.slice(0, 5).map(item => item.id)
         topList_id.push(...ids)
         topList.list.push(...res.list.slice(0, 5))
       }
       topList.list.forEach((item, index) => {
-        getPlayListDetail({ id: item.id }).then((res) => {
+        getPlayListDetail({ id: item.id }).then(res => {
           if (res.code === 200) {
             topList.info.push(res.playlist.tracks.slice(0, 3))
           }
@@ -319,7 +300,7 @@ export default {
       })
     })
 
-    const toLink = (key) => {
+    const toLink = key => {
       switch (key) {
         case 'search':
           router.push({ name: key, query: { keyWord: searchKey.value } })
@@ -351,7 +332,6 @@ export default {
       topList,
       topList_id,
       changeSpecialList,
-      changeDirection,
       toLink,
       router
     }
@@ -425,7 +405,6 @@ export default {
     .cart-item {
       overflow: hidden;
       height: getvh(500);
-      border-radius: 3.3333vw;
       margin-bottom: getvh(30);
       &:nth-child(1) {
         border-radius: 0 0 3.3333vw 3.3333vw;
@@ -440,11 +419,21 @@ export default {
         width: 92vw;
         height: getvh(125);
       }
+      :deep(.content) {
+        display: block;
+      }
+      .topList {
+        width: 100vw;
+        overflow-x: auto;
+        scrollbar-width: 0; /* FireFox */
+        -ms-overflow-style: none; /* IE */
+        &::-webkit-scrollbar {
+          display: none; /* Chrome Safari */
+        }
+      }
       .toplistItem {
-        overflow: hidden;
-        width: 86vw;
+        min-width: 86vw;
         margin-right: 4vw;
-        border-radius: 2.3333vw;
         height: getvh(500);
         .musiclist {
           height: getvh(118);

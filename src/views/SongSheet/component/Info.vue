@@ -113,13 +113,13 @@ export default {
       height: 5vw;
       line-height: 5vw;
       border-radius: 2.5vw;
-      font-size: 1.8667vw;
+      font-size: 2.6667vw;
       background-color: rgba(255, 255, 255, 0.1);
     }
   }
   .descript {
     margin-top: 2vh;
-    font-size: 1.8667vw;
+    font-size: 3.4vw;
   }
 }
 .bg {

@@ -1,5 +1,5 @@
 <template>
-  <div class="cart-container flex flex-col" :style="{ 'background-color': bgColor }">
+  <div :class="['cart-container flex flex-col', radius ? 'radius' : '']" :style="{ 'background-color': bgColor }">
     <div class="title flex flex-acenter flex-bet">
       <div class="left-text">
         <slot name="left" />
@@ -21,6 +21,10 @@ export default {
   props: {
     bgColor: {
       type: String
+    },
+    radius: {
+      type: Boolean,
+      default: false
     }
   },
   setup(prop, context) {
@@ -34,6 +38,9 @@ export default {
 
 <style lang="scss" scoped>
 @import '@/style/func.scss';
+.radius {
+  border-radius: 2.3333vw;
+}
 .cart-container {
   width: 100%;
   height: 100%;

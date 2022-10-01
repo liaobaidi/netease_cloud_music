@@ -317,7 +317,7 @@ export default {
   line-height: getvh(100);
   background-color: var(--sub-theme-color);
   color: var(--theme-text-color);
-  font-size: getvh(20);
+  font-size: getvh(32);
 }
 :deep(.van-tabs__wrap .van-tabs__nav) {
   display: flex;

@@ -218,7 +218,7 @@ export default {
   text-align: left;
   padding-left: 2vh;
   color: #fff;
-  font-size: 2.4vw;
+  font-size: 1.8vh;
   background-color: var(--theme-color);
 }
 </style>

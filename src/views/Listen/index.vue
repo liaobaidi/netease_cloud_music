@@ -521,7 +521,7 @@ export default {
   height: 6vh;
   line-height: 6vh;
   color: #fff;
-  font-size: 3.6vw;
+  font-size: 1.8vh;
   background-color: var(--theme-color);
 }
 .cart {

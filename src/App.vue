@@ -13,10 +13,14 @@
   </router-view>
 </template>
 
-<script>
-export default {
-  name: 'App'
+<script setup>
+const initViewport = function (height) {
+  const metaEl = document.getElementById('viewportMeta')
+  const content = 'width=device-width,initial-scale=1.0,user-scalable=no,maximum-scale=1.0,height=' + height
+  metaEl.setAttribute('name', 'viewport')
+  metaEl.setAttribute('content', content)
 }
+initViewport(window.innerHeight)
 </script>
 
 <style lang="scss">

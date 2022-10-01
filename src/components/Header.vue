@@ -1,7 +1,16 @@
 <template>
-  <van-popup v-model:show="show" :style="{ height: '100vh', width: '85vw', backgroundColor: 'var(--theme-color)' }" teleport="body" position="left">
+  <van-popup
+    v-model:show="show"
+    :style="{ height: '100vh', width: '85vw', backgroundColor: 'var(--theme-color)' }"
+    teleport="body"
+    position="left"
+  >
     <div class="flex flex-col flex-acenter flex-bet popup-container">
-      <div class="flex flex-col flex-acenter flex-bet" style="height: 26vh" @click="router.push({ name: 'userinfo', params: { id: userInfo.userId } })">
+      <div
+        class="flex flex-col flex-acenter flex-bet"
+        style="height: 26vh"
+        @click="router.push({ name: 'userinfo', params: { id: userInfo.userId } })"
+      >
         <van-image :src="userInfo.avatarUrl || ''" round width="20vh" height="20vh" />
         <div>
           <span>{{ userInfo.nickname || '' }}</span>
@@ -9,8 +18,17 @@
         </div>
       </div>
       <div style="width: 100%">
-        <van-button type="primary" block color="#2c2c2c" style="color: #d03333" @click="router.push({ name: 'projectinfo' })">项目介绍</van-button>
-        <van-button @click="showClose" type="primary" block color="#2c2c2c" class="logout" style="color: #d03333">退出登录/关闭</van-button>
+        <van-button
+          type="primary"
+          block
+          color="#2c2c2c"
+          style="color: #d03333"
+          @click="router.push({ name: 'projectinfo' })"
+          >项目介绍</van-button
+        >
+        <van-button @click="showClose" type="primary" block color="#2c2c2c" class="logout" style="color: #d03333"
+          >退出登录/关闭</van-button
+        >
       </div>
     </div>
   </van-popup>
@@ -19,7 +37,9 @@
       <div class="dec">退出登录/关闭</div>
     </template>
     <template #default>
-      <div v-for="item in actions" :key="item.name" class="actions" @click="handlerClose(item.name)">{{ item.name }}</div>
+      <div v-for="item in actions" :key="item.name" class="actions" @click="handlerClose(item.name)">
+        {{ item.name }}
+      </div>
     </template>
   </van-action-sheet>
   <div class="flex flex-bet flex-acenter header-container">
@@ -53,7 +73,7 @@ export default {
     let bgColor = toRefs(props)
 
     onMounted(() => {
-      getUserInfo({ uid: userid }).then((res) => {
+      getUserInfo({ uid: userid }).then(res => {
         // console.log(res, 'userinfo')
         if (res.code === 200) {
           Object.assign(userInfo, res.profile)
@@ -72,14 +92,14 @@ export default {
     const showClose = () => {
       close.value = true
     }
-    const handlerClose = (key) => {
+    const handlerClose = key => {
       if (key === '关闭云音乐') {
         window.opener = null
         window.open(import.meta.env.VITE_APP_CLOSE_API, '_self')
         window.close()
         return
       }
-      store.dispatch('user/logout').then((res) => {
+      store.dispatch('user/logout').then(res => {
         if (res.code === 200) {
           Toast.success('您已退出登录')
           router.push({ name: 'login', path: '/login' })
@@ -132,7 +152,7 @@ export default {
   line-height: getvh(100);
   background-color: var(--sub-theme-color);
   color: var(--theme-text-color);
-  font-size: getvh(20);
+  font-size: getvh(32);
 }
 .actions {
   font-size: getvh(36);

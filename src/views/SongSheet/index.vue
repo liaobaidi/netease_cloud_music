@@ -1,10 +1,21 @@
 <template>
   <div v-show="!showInfo" style="overflow: hidden">
-    <header class="flex flex-bet flex-acenter header fixed transition" :style="scrolly >= 150 ? { backgroundColor: '#151515' } : ''">
+    <header
+      class="flex flex-bet flex-acenter header fixed transition"
+      :style="scrolly >= 150 ? { backgroundColor: '#151515' } : ''"
+    >
       <div class="flex">
         <van-icon class="marginRight20" class-prefix="net" name="xiangzuo-jiantou" size="24" @click="router.go(-1)" />
         <span v-if="!showInp">{{ al ? '专辑' : '歌单' }}</span>
-        <input v-if="showInp" v-model="searKey" v-focus type="text" class="searInp" placeholder="请输入您要搜索的歌曲" @keyup.enter="showInp = !showInp" />
+        <input
+          v-if="showInp"
+          v-model="searKey"
+          v-focus
+          type="text"
+          class="searInp"
+          placeholder="请输入您要搜索的歌曲"
+          @keyup.enter="showInp = !showInp"
+        />
       </div>
       <div class="flex">
         <van-icon v-if="!showInp" class="marginRight20" class-prefix="net" name="sousuo" @click="tosearh" />
@@ -13,10 +24,20 @@
       </div>
     </header>
     <div class="top-part flex relative">
-      <div class="absolute top-part-bg" :style="{ backgroundImage: `url(${playList.coverImgUrl || playList.picUrl})` }" />
+      <div
+        class="absolute top-part-bg"
+        :style="{ backgroundImage: `url(${playList.coverImgUrl || playList.picUrl})` }"
+      />
       <div class="flex" style="height: calc(260 / 1667 * 100vh)">
         <div class="logo marginRight20 relative" @click="showInfo = true">
-          <van-image id="logo" :src="playList.coverImgUrl || playList.picUrl || './static/img/logo.png'" width=" calc(260 / 1667 * 100vh)" height=" calc(260 / 1667 * 100vh)" radius="3vw" fit="fill" />
+          <van-image
+            id="logo"
+            :src="playList.coverImgUrl || playList.picUrl || './static/img/logo.png'"
+            width=" calc(260 / 1667 * 100vh)"
+            height=" calc(260 / 1667 * 100vh)"
+            radius="3vw"
+            fit="fill"
+          />
           <div class="count absolute" v-if="!al">
             <van-icon class-prefix="net" name="play" size="10" />
             {{ countUnit(playList.playCount) }}
@@ -27,9 +48,23 @@
           <div>
             <div class="author flex flex-acenter" style="width: 10em">
               <div class="author-logo flex flex-acenter" v-if="!al">
-                <van-image :src="(playList.creator && playList.creator.avatarUrl) || './static/img/loadingErroe.png'" width="6vw" height="6vw" class="marginRight10" round fit="fill" />
+                <van-image
+                  :src="(playList.creator && playList.creator.avatarUrl) || './static/img/loadingErroe.png'"
+                  width="6vw"
+                  height="6vw"
+                  class="marginRight10"
+                  round
+                  fit="fill"
+                />
               </div>
-              <div class="author-name van-ellipsis marginRight10" @click="router.push({ name: 'userinfo', params: { id: userId } })">{{ (playList.creator && playList.creator.nickname) || (songListCom[0] && getAuthors(songListCom[0].ar)) }}</div>
+              <div
+                class="author-name van-ellipsis marginRight10"
+                @click="router.push({ name: 'userinfo', params: { id: userId } })"
+              >
+                {{
+                  (playList.creator && playList.creator.nickname) || (songListCom[0] && getAuthors(songListCom[0].ar))
+                }}
+              </div>
               <van-icon name="arrow" v-if="followed || userId === +store.getters.userid || al" />
               <van-icon v-else class-prefix="net" name="plus" class="follow" color="#bbb5b5" @click="toFollow" />
             </div>
@@ -45,9 +80,16 @@
   <div v-show="!showInfo" class="sanlian flex flex-center">
     <div class="sanlian-inner flex flex-acenter flex-ard">
       <div class="flex flex-acenter">
-        <van-icon v-if="subscribed || userId === +store.getters.userid" name="passed" color="gray" class="marginRight10" />
+        <van-icon
+          v-if="subscribed || userId === +store.getters.userid"
+          name="passed"
+          color="gray"
+          class="marginRight10"
+        />
         <van-icon v-else class="marginRight10" class-prefix="net" name="tianjiashoucang" />
-        <span @click="like" :style="subscribed || userId === +store.getters.userid ? 'color: gray' : ''">{{ countUnit(bookedCount) || '收藏' }}</span>
+        <span @click="like" :style="subscribed || userId === +store.getters.userid ? 'color: gray' : ''">{{
+          countUnit(bookedCount) || '收藏'
+        }}</span>
       </div>
       <div style="color: gray">|</div>
       <div class="flex flex-acenter" @click="router.push({ name: 'comment', params: { id }, query: { isal: al } })">
@@ -63,10 +105,29 @@
   </div>
   <div v-show="!showInfo" class="marginTop20" style="overflow: hidden">
     <div class="music-item" v-for="(item, index) in songListCom" :key="item.id">
-      <MusicItem :list-id="id" :is-album="+al" :show-pic="false" :is-top="parseInt(istop)" :id="item.id" :pic-url="item.al.picUrl" :index="index + 1" :album-name="item.name" :author-name="getAuthors(item.ar)" :description="item.al.name" />
+      <MusicItem
+        :list-id="id"
+        :is-album="+al"
+        :show-pic="false"
+        :is-top="parseInt(istop)"
+        :id="item.id"
+        :pic-url="item.al.picUrl"
+        :index="index + 1"
+        :album-name="item.name"
+        :author-name="getAuthors(item.ar)"
+        :description="item.al.name"
+      />
     </div>
   </div>
-  <Info @close="showInfo = false" :tabs="playList.tags" :show="showInfo" :url="playList.coverImgUrl || playList.picUrl" :descript="playList.description" :nickname="playList.name" :color-arr="arr" />
+  <Info
+    @close="showInfo = false"
+    :tabs="playList.tags"
+    :show="showInfo"
+    :url="playList.coverImgUrl || playList.picUrl"
+    :descript="playList.description"
+    :nickname="playList.name"
+    :color-arr="arr"
+  />
 </template>
 
 <script>
@@ -74,7 +135,15 @@ import { ref, onMounted, reactive, toRefs, nextTick, defineAsyncComponent, watch
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { followUser } from '@/api/user.js'
-import { getPlayListAll, getPlayListDetail, getPlayListDynamic, triggleLike, getAlbums, getAlbumDetail, subAlbum } from '@/api/songList.js'
+import {
+  getPlayListAll,
+  getPlayListDetail,
+  getPlayListDynamic,
+  triggleLike,
+  getAlbums,
+  getAlbumDetail,
+  subAlbum
+} from '@/api/songList.js'
 import countUnit from '@/utils/countUnit.js'
 import MusicItem from '@/components/musicItem.vue'
 import Playing from '@/components/Playing.vue'
@@ -127,14 +196,14 @@ export default {
       { immediate: true, deep: true }
     )
     if (+al.value) {
-      getAlbums({ id: id.value }).then((res) => {
+      getAlbums({ id: id.value }).then(res => {
         // console.log(res, 'getalbums')
         if (res.code === 200) {
           songList.push(...res.songs)
           Object.assign(playList, res.songs[0].al)
         }
       })
-      getAlbumDetail({ id: id.value }).then((res) => {
+      getAlbumDetail({ id: id.value }).then(res => {
         // console.log(res, 'getAlbumDetail')
         if (res.code === 200) {
           Object.assign(slInfo, res)
@@ -143,20 +212,20 @@ export default {
         }
       })
     } else {
-      getPlayListAll({ id: id.value }).then((res) => {
+      getPlayListAll({ id: id.value }).then(res => {
         // console.log(res, 'getPlayListAll')
         if (res.code === 200) {
           songList.push(...res.songs)
         }
       })
-      getPlayListDetail({ id: id.value }).then((res) => {
+      getPlayListDetail({ id: id.value }).then(res => {
         // console.log(res, 'getPlayListDetail')
         if (res.code === 200) {
           Object.assign(playList, res.playlist)
           userId.value = playList.userId
         }
       })
-      getPlayListDynamic({ id: id.value }).then((res) => {
+      getPlayListDynamic({ id: id.value }).then(res => {
         // console.log(res, 'getPlayListDynamic')
         if (res.code === 200) {
           Object.assign(slInfo, res)
@@ -173,7 +242,7 @@ export default {
         }
         if (subscribed.value) {
           // 取关
-          subAlbum({ t: 2, id: id.value }).then((res) => {
+          subAlbum({ t: 2, id: id.value }).then(res => {
             // console.log(res, 'triggleLike')
             if (res.code === 200) {
               subscribed.value = false
@@ -182,7 +251,7 @@ export default {
             }
           })
         } else {
-          subAlbum({ t: 1, id: id.value }).then((res) => {
+          subAlbum({ t: 1, id: id.value }).then(res => {
             // console.log(res, 'triggleLike')
             if (res.code === 200) {
               subscribed.value = true
@@ -197,7 +266,7 @@ export default {
         }
         if (subscribed.value) {
           // 取关
-          triggleLike({ t: 2, id: id.value }).then((res) => {
+          triggleLike({ t: 2, id: id.value }).then(res => {
             // console.log(res, 'triggleLike')
             if (res.code === 200) {
               subscribed.value = false
@@ -206,7 +275,7 @@ export default {
             }
           })
         } else {
-          triggleLike({ t: 1, id: id.value }).then((res) => {
+          triggleLike({ t: 1, id: id.value }).then(res => {
             // console.log(res, 'triggleLike')
             if (res.code === 200) {
               subscribed.value = true
@@ -219,7 +288,7 @@ export default {
     }
 
     const toFollow = () => {
-      followUser({ id: userId.value, t: 1 }).then((res) => {
+      followUser({ id: userId.value, t: 1 }).then(res => {
         // console.log(res, 'toFollow')
         if (res.code === 200) {
           Toast.success(res.followContent || '关注成功！')
@@ -236,7 +305,12 @@ export default {
       if (!searKey.value) {
         return songList
       }
-      let result = songList.filter((item) => item.name.indexOf(searKey.value) !== -1 || getAuthors(item.ar).indexOf(searKey.value) !== -1 || item.al.name.indexOf(searKey.value) !== -1)
+      let result = songList.filter(
+        item =>
+          item.name.indexOf(searKey.value) !== -1 ||
+          getAuthors(item.ar).indexOf(searKey.value) !== -1 ||
+          item.al.name.indexOf(searKey.value) !== -1
+      )
       if (!result.length) {
         Toast.fail('没有您要找的歌曲')
         return songList
@@ -363,7 +437,7 @@ export default {
     border-radius: getvh(40);
     line-height: getvh(40);
     background-color: var(--sub-theme-color);
-    font-size: getvh(18);
+    font-size: getvh(32);
   }
 }
 .music-item {
