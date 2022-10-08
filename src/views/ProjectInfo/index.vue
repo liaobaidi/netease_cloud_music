@@ -11,7 +11,7 @@
         <div class="tr flex flex-acenter" v-for="(item, index) in info" :key="index">
           <div class="tr-left flex flex-center flex-acenter">{{ item.name }}</div>
           <div class="tr-right flex flex-center flex-acenter">
-            <a :href="item.desc" class="achor" v-if="item.desc.indexOf('http') !== -1">{{ item.name }}</a>
+            <a :href="tem.link" class="achor" v-if="item.link">{{ item.desc }}</a>
             <span v-else>{{ item.desc }}</span>
           </div>
         </div>
@@ -43,29 +43,34 @@ import { useRouter } from 'vue-router'
 import { dependencies, devDependencies } from '@/../package.json'
 const router = useRouter()
 const info = [
-  {
+{
     name: '项目名称',
     desc: 'netease_cloud_music'
   },
   {
     name: '作者',
-    desc: 'liaobaidi'
+    desc: 'liaobaidi',
+    link: 'http://175.178.123.70:5000/liao'
   },
   {
     name: 'Github',
-    desc: 'https://github.com/liaobaidi/netease_cloud_music'
+    desc: 'Github',
+    link: 'https://github.com/liaobaidi/netease_cloud_music'
   },
   {
     name: 'Gitee',
-    desc: 'https://gitee.com/liaobaidi/netease_cloud_music'
+    desc: 'Gitee',
+    link: 'https://gitee.com/liaobaidi/netease_cloud_music'
   },
   {
     name: '预览地址',
-    desc: 'http://175.178.123.70:5000'
+    desc: '预览地址',
+    link: 'http://175.178.123.70:5000'
   },
   {
     name: 'Api',
-    desc: 'https://github.com/Binaryify/NeteaseCloudMusicApi'
+    desc: 'Api',
+    link: 'https://github.com/Binaryify/NeteaseCloudMusicApi'
   }
 ]
 </script>
