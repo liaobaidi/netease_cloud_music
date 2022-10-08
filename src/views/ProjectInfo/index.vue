@@ -11,7 +11,7 @@
         <div class="tr flex flex-acenter" v-for="(item, index) in info" :key="index">
           <div class="tr-left flex flex-center flex-acenter">{{ item.name }}</div>
           <div class="tr-right flex flex-center flex-acenter">
-            <a :href="tem.link" class="achor" v-if="item.link">{{ item.desc }}</a>
+            <a :href="item.link" target="_blank" class="achor" v-if="item.link">{{ item.desc }}</a>
             <span v-else>{{ item.desc }}</span>
           </div>
         </div>
