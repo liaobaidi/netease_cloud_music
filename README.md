@@ -2,7 +2,7 @@
 ## 开始使用
 ### 克隆至本地
 ```bash
-git clone https://gitee.com/liaobaidi/netease_cloud_music.git
+git clone https://github.com/liaobaidi/netease_cloud_music.git
 ```
 ### 下载依赖项
 ```bash
